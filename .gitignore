@@ -1,4 +1,5 @@
 .idea/
+logs/
 .DS_Store
 .env
 go.sum
