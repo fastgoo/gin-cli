@@ -2,7 +2,6 @@ package logger
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 	"strings"
@@ -84,6 +83,6 @@ func SetFileDriver(fileName string) *lfshook.LfsHook {
 			return method, fmt.Sprintf("%s:%d", file, line)
 		},
 	})
-	log.SetOutput(logWriter)
+	//log.SetOutput(logWriter)
 	return lfHook
 }

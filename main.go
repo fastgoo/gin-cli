@@ -11,7 +11,8 @@ import (
 
 	cRouter "gin-cli/router"
 
-	_ "gin-cli/plugins/env" //这里是载入环境变量的配置信息，必须优先引入
+	_ "gin-cli/plugins/env"   //这里是载入环境变量的配置信息，必须优先引入
+	_ "gin-cli/plugins/redis" //这里载入redis插件
 
 	_ "gin-cli/modules/api_v1" //这里是引入api_v1模块
 )

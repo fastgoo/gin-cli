@@ -21,7 +21,7 @@ type config struct {
 	OpenConns int      `env:"MYSQL_OPENCONNS" envDefault:"100"`
 }
 
-func SetUp() {
+func Initialize() {
 	cfg := config{}
 	if err := env.Parse(&cfg); err != nil {
 		log.Fatal(err)

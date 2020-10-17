@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	models.SetUp()
+	models.Initialize()
 	router()
 }
 
@@ -22,5 +22,5 @@ func router() {
 	}
 	cRouter.Router.POST("/login2", api.Login)
 
-	logger.Info("test","666","hahah")
+	logger.Info("test", "666", "hahah")
 }
