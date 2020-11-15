@@ -15,5 +15,4 @@ func init() {
 	if os.Getenv("GIN_REQUEST_LOG") == "true" {
 		Router.Use(requestLogger.LoggerHandler())
 	}
-
 }
