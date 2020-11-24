@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"gin-cli/pkg/response"
 	"net/http"
 	"os"
 	"strings"
@@ -15,24 +16,20 @@ func Auth() gin.HandlerFunc {
 		code := e.SUCCESS
 		token := c.Request.Header.Get("Authorization")
 		if token == "" {
-			code = e.ERROR_AUTH
+			code = e.ERR_AUTH_TOKEN_NOTFOUND
 		} else {
 			_, err := parseToken(strings.Fields(token)[1])
 			if err != nil {
 				switch err.(*jwt.ValidationError).Errors {
 				case jwt.ValidationErrorExpired:
-					code = e.ERROR_AUTH_CHECK_TOKEN_TIMEOUT
+					code = e.ERR_AUTH_CHECK_TOKEN_TIMEOUT
 				default:
-					code = e.ERROR_AUTH_CHECK_TOKEN_FAIL
+					code = e.ERR_AUTH_CHECK_TOKEN_FAIL
 				}
 			}
 		}
 		if code != e.SUCCESS {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"code": code,
-				"msg":  e.GetMsg(code),
-				"data": struct{}{},
-			})
+			response.Fail(c, http.StatusUnauthorized, code)
 			c.Abort()
 			return
 		}

@@ -1,10 +1,11 @@
 package api
 
 import (
+	"gin-cli/pkg/e"
+	"gin-cli/pkg/response"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func Login(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"status": "you are logged in"})
+	response.Success(c, e.SUCCESS)
 }

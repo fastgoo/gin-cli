@@ -25,7 +25,7 @@ func (s ServiceError) Msg() string {
 }
 
 func New(code ErrorCode, err ...error) ServiceError {
-	msg := getErrMsg(code)
+	msg := GetErrMsg(code)
 	var newErr error
 	if len(err) > 0 {
 		newErr = err[0]
