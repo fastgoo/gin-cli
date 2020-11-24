@@ -91,3 +91,7 @@ func Fatalf(template string, args ...interface{}) {
 	//ZapLogger.Fatalf(template, args...)
 	logrus.Fatalf(template, args...)
 }
+
+func WithFields(fields map[string]interface{}) *logrus.Entry {
+	return logrus.WithFields(fields)
+}

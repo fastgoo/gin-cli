@@ -2,10 +2,10 @@ package gin
 
 import (
 	"fmt"
+	"gin-cli/plugins/logger"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 // 日志记录到文件
@@ -28,8 +28,9 @@ func LoggerHandler() gin.HandlerFunc {
 		statusCode := c.Writer.Status()
 		// 请求IP
 		clientIP := c.ClientIP()
+
 		// 日志格式
-		logrus.WithFields(logrus.Fields{
+		logger.WithFields(map[string]interface{}{
 			"code":      statusCode,
 			"time":      fmt.Sprintln(latencyTime),
 			"client_ip": clientIP,
