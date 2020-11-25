@@ -2,30 +2,37 @@ package redis
 
 import (
 	"errors"
-	"github.com/go-redis/redis/v8"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
 
 type redisCli struct {
 	client *redis.Client
+	client2 interface{}
 }
 
-var RedisClient = &redisCli{}
+var redisClient = &redisCli{}
 
 func newClient() error {
-	RedisClient.client = redis.NewClient(&redis.Options{
+	redisClient.client = redis.NewClient(&redis.Options{
 		Addr:     cfg.Addr[0],
 		Password: cfg.Password,
 		DB:       cfg.DB,
 	})
-	if err := RedisClient.client.Ping(ctx).Err(); err != nil {
+	redisClient.client2 = redis.NewClient(&redis.Options{
+		Addr:     cfg.Addr[0],
+		Password: cfg.Password,
+		DB:       cfg.DB,
+	})
+	if err := redisClient.client.Ping(ctx).Err(); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (r *redisCli) Get(key string) string {
-	val, err := r.client.Get(ctx, key).Result()
+	val, err := r.client2.(redis.Cmdable).Get(ctx, key).Result()
 	if err != nil {
 		if err != redis.Nil {
 			//log.Panic("redis get error, " + err.Error())
@@ -35,8 +42,8 @@ func (r *redisCli) Get(key string) string {
 	return val
 }
 
-func (r *redisCli) GetVal(data interface{}) error {
-	get := r.client.Get(ctx, "key")
+func (r *redisCli) GetVal(key string, data interface{}) error {
+	get := r.client.Get(ctx, key)
 	if err := get.Err(); err != nil {
 		if err != redis.Nil {
 			//log.Panic("redis getval error, " + err.Error())

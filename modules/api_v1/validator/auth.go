@@ -1,9 +1,11 @@
 package validator
 
 import (
+	"fmt"
 	"gin-cli/modules/api_v1/models"
 	"gin-cli/pkg/e"
 	"gin-cli/pkg/util"
+	"gin-cli/plugins/redis"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -53,8 +55,15 @@ func usernameExistValid(fl validator.FieldLevel) bool {
 
 //校验用户账号不存在，如果不存在就通过，如果存在就不通过
 func usernameNotExistValid(fl validator.FieldLevel) bool {
+	key := "username:has:" + fl.Field().String()
+	n := redis.Get(key)
+	fmt.Print(n)
 	userModel := &models.WkUserInfo{}
 	_, has := userModel.Get("id", "username = ?", fl.Field().String())
+	if has {
+		err := redis.Set(key,1,15)
+		fmt.Println(err)
+	}
 	return !has
 }
 
