@@ -87,7 +87,7 @@ func GetVal(key string, data interface{}) error {
 		}
 		return err
 	}
-	err := get.Scan(&data)
+	err := get.Scan(data)
 	return err
 }
 
@@ -140,7 +140,7 @@ func HGetAll(key string) (map[string]string, error) {
 	return val, nil
 }
 
-func HSet(key, field string, val map[string]string) error {
+func HSet(key, field string, val interface{}) error {
 	err := redisClient.client.(redis.Cmdable).HSet(key, field, val).Err()
 	if err != nil {
 		//log.Panic("redis hset error, " + err.Error())

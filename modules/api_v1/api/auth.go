@@ -38,3 +38,7 @@ func Login(c *gin.Context) {
 	//userInfoModel := &models.WkUserInfo{}
 	response.Success(c, e.SUCCESS)
 }
+
+func Test(c *gin.Context) {
+	response.Success(c, e.SUCCESS)
+}

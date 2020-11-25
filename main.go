@@ -13,7 +13,7 @@ import (
 	_ "gin-cli/plugins/redis" //这里载入redis插件
 	//全局路由处理
 	cRouter "gin-cli/router"
-	//引入api模块
+	//引入api模块,这个在所有基础模块引入完成后才可以引入
 	_ "gin-cli/modules/api_v1" //这里是引入api_v1模块
 )
 

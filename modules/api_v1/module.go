@@ -24,6 +24,7 @@ func router() {
 	}
 	cRouter.Router.POST("/login2", api.Login)
 	cRouter.Router.POST("/register", api.Register)
+	cRouter.Router.POST("/test", api.Test)
 	//调试写入日志
 	logger.Info("test", "666", "hahah")
 }
