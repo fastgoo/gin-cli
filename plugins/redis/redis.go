@@ -9,6 +9,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
+//后续如果需要加方法，可以参考一下官网的用法
 type config struct {
 	Addr      []string `env:"REDIS_ADDRS,required" envSeparator:","`
 	Password  string   `env:"REDIS_PW" envDefault:""`
@@ -79,6 +80,17 @@ func Get(key string) string {
 	return val
 }
 
+func MGet(key ...string) []interface{} {
+	val, err := redisClient.client.(redis.Cmdable).MGet(key...).Result()
+	if err != nil {
+		if err != redis.Nil {
+			//log.Panic("redis get error, " + err.Error())
+		}
+		return []interface{}{}
+	}
+	return val
+}
+
 func GetVal(key string, data interface{}) error {
 	get := redisClient.client.(redis.Cmdable).Get(key)
 	if err := get.Err(); err != nil {
@@ -92,7 +104,34 @@ func GetVal(key string, data interface{}) error {
 }
 
 func Set(key string, val interface{}, expireTime time.Duration) error {
+	err := redisClient.client.(redis.Cmdable).Set(key, val, expireTime*time.Second).Err()
+	if err != nil {
+		//log.Panic("redis set error, " + err.Error())
+		return err
+	}
+	return nil
+}
+
+func SetNX(key string, val interface{}, expireTime time.Duration) error {
 	err := redisClient.client.(redis.Cmdable).SetNX(key, val, expireTime*time.Second).Err()
+	if err != nil {
+		//log.Panic("redis set error, " + err.Error())
+		return err
+	}
+	return nil
+}
+
+func MSet(pairs ...interface{}) error {
+	err := redisClient.client.(redis.Cmdable).MSet(pairs...).Err()
+	if err != nil {
+		//log.Panic("redis set error, " + err.Error())
+		return err
+	}
+	return nil
+}
+
+func MSetNX(pairs ...interface{}) error {
+	err := redisClient.client.(redis.Cmdable).MSetNX(pairs...).Err()
 	if err != nil {
 		//log.Panic("redis set error, " + err.Error())
 		return err
@@ -213,4 +252,52 @@ func HMSet(key string, fields map[string]interface{}) error {
 		return err
 	}
 	return nil
+}
+
+//原子自增
+func Incr(key string, expireTime time.Duration) error {
+	pipe := redisClient.client.(redis.Cmdable).TxPipeline()
+	pipe.Incr(key)
+	pipe.Expire(key, expireTime)
+	_, err := pipe.Exec()
+	return err
+}
+
+//原子自减
+func Decr(key string, expireTime time.Duration) error {
+	pipe := redisClient.client.(redis.Cmdable).TxPipeline()
+	pipe.Decr(key)
+	pipe.Expire(key, expireTime)
+	_, err := pipe.Exec()
+	return err
+}
+
+//设置key的有效时间
+func Expire(key string, expireTime time.Duration) error {
+	_, err := redisClient.client.(redis.Cmdable).Expire(key, expireTime).Result()
+	if err != nil {
+		//log.Panic("redis HMSet error, " + err.Error())
+		return err
+	}
+	return nil
+}
+
+//返回Key的有效时间返回秒
+func TTL(key string) time.Duration {
+	t, err := redisClient.client.(redis.Cmdable).TTL(key).Result()
+	if err != nil {
+		//log.Panic("redis HMSet error, " + err.Error())
+		return 0
+	}
+	return t
+}
+
+//返回key的有效时间毫秒
+func PTTL(key string) time.Duration {
+	t, err := redisClient.client.(redis.Cmdable).PTTL(key).Result()
+	if err != nil {
+		//log.Panic("redis HMSet error, " + err.Error())
+		return 0
+	}
+	return t
 }
