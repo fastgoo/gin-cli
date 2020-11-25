@@ -12,8 +12,11 @@ type reponseH struct {
 }
 
 // http异常响应
-func Fail(c *gin.Context, statusCode int, code e.ErrorCode) {
-	c.JSON(statusCode, reponseH{code, e.GetErrMsg(code), struct{}{}})
+func Fail(c *gin.Context, statusCode int, code e.ErrorCode, msg string) {
+	if msg == "" {
+		msg = e.GetErrMsg(code)
+	}
+	c.JSON(statusCode, reponseH{code, msg, struct{}{}})
 }
 
 // http 成功响应

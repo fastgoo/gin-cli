@@ -29,7 +29,7 @@ func Auth() gin.HandlerFunc {
 			}
 		}
 		if code != e.SUCCESS {
-			response.Fail(c, http.StatusUnauthorized, code)
+			response.Fail(c, http.StatusUnauthorized, code, "")
 			c.Abort()
 			return
 		}

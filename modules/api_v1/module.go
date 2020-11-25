@@ -7,6 +7,8 @@ import (
 	"gin-cli/plugins/logger"
 
 	cRouter "gin-cli/router"
+	//注册自定义验证器
+	_ "gin-cli/modules/api_v1/validator"
 )
 
 func init() {
@@ -21,6 +23,7 @@ func router() {
 		authorized.POST("/login", api.Login)
 	}
 	cRouter.Router.POST("/login2", api.Login)
-
+	cRouter.Router.POST("/register", api.Register)
+	//调试写入日志
 	logger.Info("test", "666", "hahah")
 }
