@@ -2,7 +2,6 @@
 <img align="right" width="100" src="https://resource.fastgoo.net/go.png"/>
 
 <h1 align="left"><a href="javascript:">gin脚手架模板</a></h1>
-# a
 
 [![Latest Version](https://img.shields.io/badge/release-v1.0.0-green.svg?maxAge=2592000)](https://github.com/fastgoo/AsyncHttpClient/releases)
 [![Php Version](https://img.shields.io/badge/php-%3E=7.0-brightgreen.svg?maxAge=2592000)](https://secure.php.net/)
