@@ -12,6 +12,7 @@
 gin web框架脚手架服务，企业级快速构建web项目，不需要关心代码目录的结构以及常用方法的封装。
 
 > gin 中文文档：https://learnku.com/docs/gin-gonic/2019
+> gorm 中文文档：https://gorm.io/zh_CN/docs/index.html
 
 
 ## 安装
