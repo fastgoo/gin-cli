@@ -3,13 +3,16 @@
 
 <h1 align="left"><a href="javascript:">gin脚手架模板</a></h1>
 
-[![Latest Version](https://img.shields.io/badge/release-v1.0.0-green.svg?maxAge=2592000)](https://github.com/fastgoo/AsyncHttpClient/releases)
-[![Php Version](https://img.shields.io/badge/php-%3E=7.0-brightgreen.svg?maxAge=2592000)](https://secure.php.net/)
-[![Swoole Version](https://img.shields.io/badge/swoole-%3E=1.9-brightgreen.svg?maxAge=2592000)](https://github.com/swoole/swoole-src)
+[![Latest Version](https://img.shields.io/badge/release-master-green.svg?maxAge=2592000)](https://github.com/fastgoo/gin-cli)
+[![Golang Version](https://img.shields.io/badge/go-%3E=1.13-brightgreen.svg?maxAge=2592000)](https://studygolang.com/dl)
+[![Gin Version](https://img.shields.io/badge/gin-%3E=1.6-brightgreen.svg?maxAge=2592000)](https://github.com/gin-gonic/gin)
+[![Gorm Version](https://img.shields.io/badge/gorm-%3E=v2.0-brightgreen.svg?maxAge=2592000)](https://gorm.io/zh_CN/docs/index.html)
+[![Logrus Version](https://img.shields.io/badge/logrus-%3E=v1.7-brightgreen.svg?maxAge=2592000)](https://github.com/sirupsen/logrus)
 
 gin web框架脚手架服务，企业级快速构建web项目，不需要关心代码目录的结构以及常用方法的封装。
 
 > gin 中文文档：https://learnku.com/docs/gin-gonic/2019
+> gorm 中文文档：https://gorm.io/zh_CN/docs/index.html
 
 
 ## 安装
