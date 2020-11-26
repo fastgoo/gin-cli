@@ -75,6 +75,59 @@ LOGGER_FILE="./logs/test.log"
 ```
 
 
+## 目录结构
+```shell
+├── Makefile # 构建脚本
+├── README.md # readme
+├── go.mod # go mod
+├── logs # 系统自动生成的日志目录
+│   ├── test.log # 日志文件
+├── main.go # 入口文件(启动gin服务，载入插件以及依赖类库)
+├── middleware # 中间件
+│   ├── casbin # 权限中间件
+│   ├── gin # gin框架系统中间件
+│   │   └── logger.go # 访问日志中间件
+│   └── jwt # jwt授权验证中间件
+│       └── jwt.go
+├── modules # 业务模块(可建立多业务多模块)
+│   └── api_v1
+│       ├── api # api控制器方法
+│       │   └── auth.go # 注册范例
+│       ├── models # 模型
+│       │   ├── model.go # 基础模型(处理连接池连接实例)
+│       │   ├── model_base.go # gen生成的模型方法依赖
+│       │   ├── wk_company.go # 范例1
+│       │   └── wk_user_info.go
+│       ├── module.go # 业务模块的核心(路由、模型初始化、验证器初始化等等)
+│       ├── services # 业务逻辑
+│       └── validator # 验证器
+│           ├── auth.go # 范例验证器(注册的一系列操作)
+│           └── init.go # 初始化验证器(每新增一个验证方法都需要，在这里手动注册引入)
+├── pkg # 公共类
+│   ├── e # 异常、消息、状态码
+│   │   ├── code.go # 状态码
+│   │   ├── error.go # 自定义错误结构
+│   │   └── msg.go # 状态码指定的消息内容(需要手动定义，支持中英文)
+│   ├── response # 响应类
+│   │   └── response.go # 主要是处理http响应结果的(封装了错误、成功状态的处理机制，以及消息文字的处理)
+│   └── util # 工具类(编写一些常用的方法给外部调用)
+│       └── util.go
+├── plugin.go # 插件类(目前没啥卵用)
+├── plugins
+│   ├── env # 处理.env配置文件的类
+│   │   └── env.go
+│   ├── logger # 日志类（在第三方类的基础之上做了封装，让写可控，目前只支持写入到文件）
+│   │   ├── logger.go
+│   │   ├── logrus.go
+│   │   └── zap.go
+│   └── redis # redis类 (支持单机和集群，内部预设了大部分常用方法，如果想自己添加直接在里面新增方法即可)
+│       └── redis.go
+├── router # 路由类（这里是吧gin的router抽离出来，让每一个module去引入使用，这样在模块删除的时候不会对外部造成影响）
+│   └── router.go
+└── end
+```
+
+
 
 ## License
 
