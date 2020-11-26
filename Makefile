@@ -1,29 +1,71 @@
-GO_CMD=go
-API_BIN=xingshen_visitor
-API_BIN_PATH=./output
-API_CONF_PATH=./output
-API_LOG_PATH=./output/log
+BIN_NAME=gin-cli-server
+BIN_PATH=./output
 
 .PHONY: install
 install:
-	@echo "install huike-api start >>>"
-	rm -rf $(API_BIN_PATH)
-	mkdir -p $(API_BIN_PATH)
-	cp ./app.ini $(API_CONF_PATH)
-	cp ./prod.app.ini $(API_CONF_PATH)
-	cp ./prod.task.app.ini $(API_CONF_PATH)
-	cp ./prod.xs.app.ini $(API_CONF_PATH)
-	mkdir -p $(API_LOG_PATH)
-	#$(GO_CMD) build -o $(API_BIN) ./main.go
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO_CMD) build -ldflags '-w -s' -o $(API_BIN) ./main.go
+	@echo "build $(BIN_NAME) >>>"
+	rm -rf $(BIN_PATH)
+	mkdir -p $(BIN_PATH)
+	cp ./.env $(BIN_PATH)
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-w -s' -o $(BIN_NAME) ./main.go
 	#CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO_CMD) build -o $(API_BIN) ./main.go
-	upx --brute $(API_BIN)
-	cp ./$(API_BIN) $(API_BIN_PATH)
-	rm -rf ./$(API_BIN)
-	@echo ">>> install huike-api complete"
+	#upx --brute $(BIN_NAME)
+	cp ./$(BIN_NAME) $(BIN_PATH)
+	rm -rf ./$(BIN_NAME)
+	@echo ">>> build $(BIN_NAME) complete"
+
+.PHONY: all
+all:
+	@echo "build $(BIN_NAME) all platform >>>"
+	rm -rf $(BIN_PATH)
+	mkdir -p $(BIN_PATH)
+	cp ./.env $(BIN_PATH)
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags '-w -s' -o $(BIN_NAME)-mac ./main.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-w -s' -o $(BIN_NAME)-linux ./main.go
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags '-w -s' -o $(BIN_NAME)-windows ./main.go
+	#upx --brute $(BIN_NAME)
+	cp ./$(BIN_NAME)-* $(BIN_PATH)
+	rm -rf ./$(BIN_NAME)-*
+	@echo ">>> build $(BIN_NAME) all platform complete"
+
+.PHONY: mac
+mac:
+	@echo "build $(BIN_NAME) mac platform >>>"
+	rm -rf $(BIN_PATH)
+	mkdir -p $(BIN_PATH)
+	cp ./.env $(BIN_PATH)
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags '-w -s' -o $(BIN_NAME) ./main.go
+	#upx --brute $(BIN_NAME)
+	cp ./$(BIN_NAME) $(BIN_PATH)
+	rm -rf ./$(BIN_NAME)
+	@echo ">>> build $(BIN_NAME) mac platform complete"
+
+.PHONY: linux
+linux:
+	@echo "build $(BIN_NAME) linux platform >>>"
+	rm -rf $(BIN_PATH)
+	mkdir -p $(BIN_PATH)
+	cp ./.env $(BIN_PATH)
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-w -s' -o $(BIN_NAME) ./main.go
+	#upx --brute $(BIN_NAME)
+	cp ./$(BIN_NAME) $(BIN_PATH)
+	rm -rf ./$(BIN_NAME)
+	@echo ">>> build $(BIN_NAME) linux platform complete"
+
+.PHONY: windows
+windows:
+	@echo "build $(BIN_NAME) windows platform >>>"
+	rm -rf $(BIN_PATH)
+	mkdir -p $(BIN_PATH)
+	cp ./.env $(BIN_PATH)
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags '-w -s' -o $(BIN_NAME) ./main.go
+	#upx --brute $(BIN_NAME)
+	cp ./$(BIN_NAME) $(BIN_PATH)
+	rm -rf ./$(BIN_NAME)
+	@echo ">>> build $(BIN_NAME) windows platform complete"
 
 .PHONY: clean
 clean:
 	@echo "clean start >>>"
-	rm -fr ./output
+	rm -rf BIN_PATH
 	@echo ">>> clean complete"
