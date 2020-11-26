@@ -67,5 +67,5 @@ windows:
 .PHONY: clean
 clean:
 	@echo "clean start >>>"
-	rm -rf BIN_PATH
+	rm -rf $(BIN_PATH)
 	@echo ">>> clean complete"
