@@ -3,8 +3,12 @@ package util
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"encoding/json"
+	"errors"
 	"golang.org/x/crypto/bcrypt"
+	"io/ioutil"
 	"math/rand"
+	"net/http"
 	"regexp"
 	"time"
 )
@@ -86,4 +90,33 @@ func VerifyPasswordSecurity(pwd string) int {
 		securityLevel++
 	}
 	return securityLevel
+}
+
+// 获取指定ip信息
+func GetIPInfo(ip string) (ret map[string]interface{}, retErr error) {
+	defer func() {
+		if recover() != nil {
+			retErr = errors.New("ip get fail,http error")
+		}
+	}()
+	resp, err := http.Get("http://api.tianapi.com/txapi/ipquery/index?ip=" + ip + "&key=f2d405f48efac244ccab33c1ebaf7911")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal(body, &ret); err != nil {
+		return nil, err
+	}
+	if ret["code"].(float64) != 200 {
+		return nil, errors.New("ip '" + ip + "' error")
+	}
+	if ipInfo := ret["newslist"].([]interface{}); len(ipInfo) > 0 {
+		ret = ipInfo[0].(map[string]interface{})
+		return
+	}
+	return nil, errors.New("ip get fail")
 }

@@ -67,6 +67,19 @@ func Login(c *gin.Context) {
 		response.Fail(c, 200, e.ERR_AUTH_TOKEN_NOTCREATE)
 		return
 	}
+	//写入登录的相关记录
+	go func() {
+		loginRecordModel := models.WkUserLoginRecord{
+			UserID: userInfo.ID,
+			IP:     c.ClientIP(),
+		}
+		ipInfo, err := util.GetIPInfo(loginRecordModel.IP)
+		if err == nil {
+			loginRecordModel.Area = ipInfo["country"].(string) + " " + ipInfo["province"].(string) + " " + ipInfo["city"].(string) +
+				" " + ipInfo["district"].(string) + " [" + ipInfo["isp"].(string) + "]"
+		}
+		loginRecordModel.Insert(loginRecordModel)
+	}()
 	response.Success(c, e.SUCCESS, map[string]string{"token": token})
 }
 

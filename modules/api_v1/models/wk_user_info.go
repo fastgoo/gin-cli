@@ -22,20 +22,21 @@ DB Table Details
 
 CREATE TABLE `wk_user_info` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '昵称',
+  `avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '头像',
+  `create_user_id` int(10) NOT NULL DEFAULT '0' COMMENT '创建人id',
   `username` char(30) NOT NULL COMMENT '用户名',
   `password` varchar(255) NOT NULL DEFAULT '' COMMENT '密码',
-  `head_img` varchar(255) NOT NULL DEFAULT '' COMMENT '头像',
-  `nickname` varchar(255) NOT NULL DEFAULT '' COMMENT '昵称',
   `status` tinyint(2) NOT NULL DEFAULT '-1' COMMENT '-1未激活 0正常 1锁定',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `username` (`username`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户信息表'
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COMMENT='用户信息表'
 
 JSON Sample
 -------------------------------------
-{    "create_time": "2254-07-13T00:52:05.779461571+08:00",    "update_time": "2192-07-23T01:40:38.011161004+08:00",    "id": 23,    "username": "aWBYCBxdDOmqjuvHHlQrlWHdR",    "password": "AEoHYNcDVVdtUxOfyMRoVAcCA",    "head_img": "QSFIBihHoUgDOgjWlMaPRlRuf",    "nickname": "ezkHlvMPbNQfEYZuGzPXRAdBM",    "status": 17}
+{    "status": 28,    "update_time": "2092-01-10T13:13:46.376668361+08:00",    "password": "PjQarEkVultWNdtyaDDefvaUK",    "name": "SdRjyVHQPqldcrkOjiaFPevzX",    "avatar": "lSqPMhYIYItmyefMkqoxbNfmD",    "create_user_id": 97,    "username": "kIrsZBORslcMkwqCzBVdhjdcq",    "create_time": "2037-11-29T23:16:47.110388191+08:00",    "id": 38}
 
 
 Comments
@@ -50,19 +51,21 @@ Comments
 type WkUserInfo struct {
 	//[ 0] id                                             uint                 null: false  primary: true   isArray: false  auto: true   col: uint            len: -1      default: []
 	ID uint32
-	//[ 1] username                                       char(30)             null: false  primary: false  isArray: false  auto: false  col: char            len: 30      default: []
+	//[ 1] name                                           varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
+	Name string // 昵称
+	//[ 2] avatar                                         varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
+	Avatar string // 头像
+	//[ 3] create_user_id                                 int                  null: false  primary: false  isArray: false  auto: false  col: int             len: -1      default: [0]
+	CreateUserID int32 // 创建人id
+	//[ 4] username                                       char(30)             null: false  primary: false  isArray: false  auto: false  col: char            len: 30      default: []
 	Username string // 用户名
-	//[ 2] password                                       varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
+	//[ 5] password                                       varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
 	Password string // 密码
-	//[ 3] head_img                                       varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	HeadImg string // 头像
-	//[ 4] nickname                                       varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	Nickname string // 昵称
-	//[ 5] status                                         tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [-1]
+	//[ 6] status                                         tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [-1]
 	Status int32 // -1未激活 0正常 1锁定
-	//[ 6] create_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
+	//[ 7] create_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
 	CreateTime time.Time
-	//[ 7] update_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
+	//[ 8] update_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
 	UpdateTime time.Time
 }
 
@@ -93,6 +96,69 @@ var wk_user_infoTableInfo = &TableInfo{
 
 		&ColumnInfo{
 			Index:              1,
+			Name:               "name",
+			Comment:            `昵称`,
+			Notes:              ``,
+			Nullable:           false,
+			DatabaseTypeName:   "varchar",
+			DatabaseTypePretty: "varchar(255)",
+			IsPrimaryKey:       false,
+			IsAutoIncrement:    false,
+			IsArray:            false,
+			ColumnType:         "varchar",
+			ColumnLength:       255,
+			GoFieldName:        "Name",
+			GoFieldType:        "string",
+			JSONFieldName:      "name",
+			ProtobufFieldName:  "name",
+			ProtobufType:       "string",
+			ProtobufPos:        2,
+		},
+
+		&ColumnInfo{
+			Index:              2,
+			Name:               "avatar",
+			Comment:            `头像`,
+			Notes:              ``,
+			Nullable:           false,
+			DatabaseTypeName:   "varchar",
+			DatabaseTypePretty: "varchar(255)",
+			IsPrimaryKey:       false,
+			IsAutoIncrement:    false,
+			IsArray:            false,
+			ColumnType:         "varchar",
+			ColumnLength:       255,
+			GoFieldName:        "Avatar",
+			GoFieldType:        "string",
+			JSONFieldName:      "avatar",
+			ProtobufFieldName:  "avatar",
+			ProtobufType:       "string",
+			ProtobufPos:        3,
+		},
+
+		&ColumnInfo{
+			Index:              3,
+			Name:               "create_user_id",
+			Comment:            `创建人id`,
+			Notes:              ``,
+			Nullable:           false,
+			DatabaseTypeName:   "int",
+			DatabaseTypePretty: "int",
+			IsPrimaryKey:       false,
+			IsAutoIncrement:    false,
+			IsArray:            false,
+			ColumnType:         "int",
+			ColumnLength:       -1,
+			GoFieldName:        "CreateUserID",
+			GoFieldType:        "int32",
+			JSONFieldName:      "create_user_id",
+			ProtobufFieldName:  "create_user_id",
+			ProtobufType:       "int32",
+			ProtobufPos:        4,
+		},
+
+		&ColumnInfo{
+			Index:              4,
 			Name:               "username",
 			Comment:            `用户名`,
 			Notes:              ``,
@@ -109,11 +175,11 @@ var wk_user_infoTableInfo = &TableInfo{
 			JSONFieldName:      "username",
 			ProtobufFieldName:  "username",
 			ProtobufType:       "string",
-			ProtobufPos:        2,
+			ProtobufPos:        5,
 		},
 
 		&ColumnInfo{
-			Index:              2,
+			Index:              5,
 			Name:               "password",
 			Comment:            `密码`,
 			Notes:              ``,
@@ -130,53 +196,11 @@ var wk_user_infoTableInfo = &TableInfo{
 			JSONFieldName:      "password",
 			ProtobufFieldName:  "password",
 			ProtobufType:       "string",
-			ProtobufPos:        3,
+			ProtobufPos:        6,
 		},
 
 		&ColumnInfo{
-			Index:              3,
-			Name:               "head_img",
-			Comment:            `头像`,
-			Notes:              ``,
-			Nullable:           false,
-			DatabaseTypeName:   "varchar",
-			DatabaseTypePretty: "varchar(255)",
-			IsPrimaryKey:       false,
-			IsAutoIncrement:    false,
-			IsArray:            false,
-			ColumnType:         "varchar",
-			ColumnLength:       255,
-			GoFieldName:        "HeadImg",
-			GoFieldType:        "string",
-			JSONFieldName:      "head_img",
-			ProtobufFieldName:  "head_img",
-			ProtobufType:       "string",
-			ProtobufPos:        4,
-		},
-
-		&ColumnInfo{
-			Index:              4,
-			Name:               "nickname",
-			Comment:            `昵称`,
-			Notes:              ``,
-			Nullable:           false,
-			DatabaseTypeName:   "varchar",
-			DatabaseTypePretty: "varchar(255)",
-			IsPrimaryKey:       false,
-			IsAutoIncrement:    false,
-			IsArray:            false,
-			ColumnType:         "varchar",
-			ColumnLength:       255,
-			GoFieldName:        "Nickname",
-			GoFieldType:        "string",
-			JSONFieldName:      "nickname",
-			ProtobufFieldName:  "nickname",
-			ProtobufType:       "string",
-			ProtobufPos:        5,
-		},
-
-		&ColumnInfo{
-			Index:              5,
+			Index:              6,
 			Name:               "status",
 			Comment:            `-1未激活 0正常 1锁定`,
 			Notes:              ``,
@@ -193,11 +217,11 @@ var wk_user_infoTableInfo = &TableInfo{
 			JSONFieldName:      "status",
 			ProtobufFieldName:  "status",
 			ProtobufType:       "int32",
-			ProtobufPos:        6,
+			ProtobufPos:        7,
 		},
 
 		&ColumnInfo{
-			Index:              6,
+			Index:              7,
 			Name:               "create_time",
 			Comment:            ``,
 			Notes:              ``,
@@ -214,11 +238,11 @@ var wk_user_infoTableInfo = &TableInfo{
 			JSONFieldName:      "create_time",
 			ProtobufFieldName:  "create_time",
 			ProtobufType:       "uint64",
-			ProtobufPos:        7,
+			ProtobufPos:        8,
 		},
 
 		&ColumnInfo{
-			Index:              7,
+			Index:              8,
 			Name:               "update_time",
 			Comment:            ``,
 			Notes:              ``,
@@ -235,7 +259,7 @@ var wk_user_infoTableInfo = &TableInfo{
 			JSONFieldName:      "update_time",
 			ProtobufFieldName:  "update_time",
 			ProtobufType:       "uint64",
-			ProtobufPos:        8,
+			ProtobufPos:        9,
 		},
 	},
 }
@@ -246,7 +270,8 @@ func (w *WkUserInfo) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-/*func (w *WkUserInfo) BeforeSave() error {
+/*
+func (w *WkUserInfo) BeforeSave() error {
 	return nil
 }
 
