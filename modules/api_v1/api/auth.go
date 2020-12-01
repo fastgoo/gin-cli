@@ -62,7 +62,7 @@ func Login(c *gin.Context) {
 		response.Fail(c, 200, e.ERR_USERNAME_LOCKED)
 		return
 	}
-	token, err := jwtMiddle.CreateToken(jwtMiddle.Claims{UserId: userInfo.ID, Username: params.Username, Status: userInfo.Status})
+	token, err := jwtMiddle.CreateToken(jwtMiddle.Claims{UserId: userInfo.ID, Username: params.Username, Status: userInfo.Status, IP: c.ClientIP()})
 	if err != nil {
 		response.Fail(c, 200, e.ERR_AUTH_TOKEN_NOTCREATE)
 		return

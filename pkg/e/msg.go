@@ -7,7 +7,7 @@ var errMsg = map[ErrorCode]map[string]string{
 	ERROR:                        {"en": "error", "ch": "错误"},
 	INVALID_PARAMS:               {"en": "params invalid", "ch": "请求参数异常或无效"},
 	ERR_AUTH_CHECK_TOKEN_FAIL:    {"en": "auth fail", "ch": "Token鉴权失败"},
-	ERR_AUTH_CHECK_TOKEN_TIMEOUT: {"en": "auth is timeout", "ch": "Token已超时"},
+	ERR_AUTH_CHECK_TOKEN_TIMEOUT: {"en": "auth is timeout", "ch": "Token已过期"},
 	ERR_AUTH_TOKEN_NOTCREATE:     {"en": "token create fail", "ch": "Token生成失败"},
 	ERR_AUTH_TOKEN_NOTFOUND:      {"en": "cannt get userinfo", "ch": "无法获取用户认证信息"},
 
