@@ -13,6 +13,11 @@ type RegisterParams struct {
 	Password string `form:"password"  json:"password"  binding:"required,PassSecurityValid"`
 }
 
+type LoginParams struct {
+	Username string `form:"username" json:"username" binding:"required,UsernameValid"`
+	Password string `form:"password"  json:"password"  binding:"required"`
+}
+
 // 绑定模型获取验证错误的方法
 func (r *RegisterParams) GetError(errs validator.ValidationErrors) string {
 	for _, err := range errs {
@@ -22,8 +27,6 @@ func (r *RegisterParams) GetError(errs validator.ValidationErrors) string {
 				return e.GetErrMsg(e.ERR_PARAMS_EMPTY_MOBILE)
 			case "UsernameValid":
 				return e.GetErrMsg(e.ERR_PARAMS_MOBILE_INVALID)
-			case "UsernameExistValid":
-				return e.GetErrMsg(e.ERR_PARAMS_USERNAME_NOTEXIST)
 			case "UsernameNotExistValid":
 				return e.GetErrMsg(e.ERR_PARAMS_USERNAME_EXIST)
 			}
@@ -34,6 +37,27 @@ func (r *RegisterParams) GetError(errs validator.ValidationErrors) string {
 				return e.GetErrMsg(e.ERR_PARAMS_EMPTY_PASSWORD)
 			case "PassSecurityValid":
 				return e.GetErrMsg(e.ERR_PARAMS_PASSWORD_INVALID)
+			}
+		}
+	}
+	return e.GetErrMsg(e.INVALID_PARAMS)
+}
+
+// 绑定模型获取验证错误的方法
+func (r *LoginParams) GetError(errs validator.ValidationErrors) string {
+	for _, err := range errs {
+		if err.Field() == "Username" {
+			switch err.Tag() {
+			case "required":
+				return e.GetErrMsg(e.ERR_PARAMS_EMPTY_MOBILE)
+			case "UsernameValid":
+				return e.GetErrMsg(e.ERR_PARAMS_MOBILE_INVALID)
+			}
+		}
+		if err.Field() == "Password" {
+			switch err.Tag() {
+			case "required":
+				return e.GetErrMsg(e.ERR_PARAMS_EMPTY_PASSWORD)
 			}
 		}
 	}

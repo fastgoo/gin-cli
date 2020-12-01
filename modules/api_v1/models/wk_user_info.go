@@ -246,11 +246,11 @@ func (w *WkUserInfo) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (w *WkUserInfo) BeforeSave() error {
+/*func (w *WkUserInfo) BeforeSave() error {
 	return nil
 }
 
-/*func (w *WkUserInfo) BeforeCreate(tx *gorm.DB) (err error) {
+func (w *WkUserInfo) BeforeCreate(tx *gorm.DB) (err error) {
     return
 }
 

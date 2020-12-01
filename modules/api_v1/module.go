@@ -21,6 +21,7 @@ func router() {
 	authorized.Use(jwt.Auth())
 	{
 		authorized.POST("/login", api.Login)
+		authorized.POST("/auth", api.Auth)
 	}
 	cRouter.Router.POST("/login2", api.Login)
 	cRouter.Router.POST("/register", api.Register)

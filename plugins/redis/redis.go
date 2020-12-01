@@ -140,10 +140,12 @@ func MSetNX(pairs ...interface{}) error {
 }
 
 func Exists(key ...string) error {
-	err := redisClient.client.(redis.Cmdable).Exists(key...).Err()
+	k, err := redisClient.client.(redis.Cmdable).Exists(key...).Result()
 	if err != nil {
-		//log.Panic("redis exists error, " + err.Error())
 		return err
+	}
+	if int(k) != len(key) {
+		return errors.New("redis somekey not exist")
 	}
 	return nil
 }
