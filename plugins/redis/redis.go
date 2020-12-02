@@ -1,12 +1,13 @@
 package redis
 
 import (
+	"context"
 	"errors"
 	"log"
 	"time"
 
 	"github.com/caarlos0/env/v6"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 )
 
 //后续如果需要加方法，可以参考一下官网的用法
@@ -24,6 +25,7 @@ type redisCli struct {
 var (
 	cfg         = &config{}
 	redisClient = &redisCli{}
+	ctx         = context.Background()
 )
 
 func init() {
@@ -42,18 +44,20 @@ func init() {
 	}
 }
 
+// redis单机
 func newClient() error {
 	redisClient.client = redis.NewClient(&redis.Options{
 		Addr:     cfg.Addr[0],
 		Password: cfg.Password,
 		DB:       cfg.DB,
 	})
-	if err := redisClient.client.(redis.Cmdable).Ping().Err(); err != nil {
+	if err := redisClient.client.(redis.Cmdable).Ping(ctx).Err(); err != nil {
 		return err
 	}
 	return nil
 }
 
+// redis集群
 func newCluster() error {
 	redisClient.client = redis.NewClusterClient(&redis.ClusterOptions{
 		Addrs:    cfg.Addr,
@@ -63,14 +67,14 @@ func newCluster() error {
 		//ReadTimeout:  50 * time.Microsecond, // 设置读取超时
 		//WriteTimeout: 50 * time.Microsecond, // 设置写入超时
 	})
-	if err := redisClient.client.(redis.Cmdable).Ping().Err(); err != nil {
+	if err := redisClient.client.(redis.Cmdable).Ping(ctx).Err(); err != nil {
 		return err
 	}
 	return nil
 }
 
 func Get(key string) string {
-	val, err := redisClient.client.(redis.Cmdable).Get(key).Result()
+	val, err := redisClient.client.(redis.Cmdable).Get(ctx, key).Result()
 	if err != nil {
 		if err != redis.Nil {
 			//log.Panic("redis get error, " + err.Error())
@@ -81,7 +85,7 @@ func Get(key string) string {
 }
 
 func MGet(key ...string) []interface{} {
-	val, err := redisClient.client.(redis.Cmdable).MGet(key...).Result()
+	val, err := redisClient.client.(redis.Cmdable).MGet(ctx, key...).Result()
 	if err != nil {
 		if err != redis.Nil {
 			//log.Panic("redis get error, " + err.Error())
@@ -92,7 +96,7 @@ func MGet(key ...string) []interface{} {
 }
 
 func GetVal(key string, data interface{}) error {
-	get := redisClient.client.(redis.Cmdable).Get(key)
+	get := redisClient.client.(redis.Cmdable).Get(ctx, key)
 	if err := get.Err(); err != nil {
 		if err != redis.Nil {
 			//log.Panic("redis getval error, " + err.Error())
@@ -104,7 +108,7 @@ func GetVal(key string, data interface{}) error {
 }
 
 func Set(key string, val interface{}, expireTime time.Duration) error {
-	err := redisClient.client.(redis.Cmdable).Set(key, val, expireTime*time.Second).Err()
+	err := redisClient.client.(redis.Cmdable).Set(ctx, key, val, expireTime*time.Second).Err()
 	if err != nil {
 		//log.Panic("redis set error, " + err.Error())
 		return err
@@ -113,7 +117,7 @@ func Set(key string, val interface{}, expireTime time.Duration) error {
 }
 
 func SetNX(key string, val interface{}, expireTime time.Duration) error {
-	err := redisClient.client.(redis.Cmdable).SetNX(key, val, expireTime*time.Second).Err()
+	err := redisClient.client.(redis.Cmdable).SetNX(ctx, key, val, expireTime*time.Second).Err()
 	if err != nil {
 		//log.Panic("redis set error, " + err.Error())
 		return err
@@ -122,7 +126,7 @@ func SetNX(key string, val interface{}, expireTime time.Duration) error {
 }
 
 func MSet(pairs ...interface{}) error {
-	err := redisClient.client.(redis.Cmdable).MSet(pairs...).Err()
+	err := redisClient.client.(redis.Cmdable).MSet(ctx, pairs...).Err()
 	if err != nil {
 		//log.Panic("redis set error, " + err.Error())
 		return err
@@ -131,7 +135,7 @@ func MSet(pairs ...interface{}) error {
 }
 
 func MSetNX(pairs ...interface{}) error {
-	err := redisClient.client.(redis.Cmdable).MSetNX(pairs...).Err()
+	err := redisClient.client.(redis.Cmdable).MSetNX(ctx, pairs...).Err()
 	if err != nil {
 		//log.Panic("redis set error, " + err.Error())
 		return err
@@ -140,7 +144,7 @@ func MSetNX(pairs ...interface{}) error {
 }
 
 func Exists(key ...string) error {
-	k, err := redisClient.client.(redis.Cmdable).Exists(key...).Result()
+	k, err := redisClient.client.(redis.Cmdable).Exists(ctx, key...).Result()
 	if err != nil {
 		return err
 	}
@@ -151,7 +155,7 @@ func Exists(key ...string) error {
 }
 
 func Del(key ...string) error {
-	err := redisClient.client.(redis.Cmdable).Del(key...).Err()
+	err := redisClient.client.(redis.Cmdable).Del(ctx, key...).Err()
 	if err != nil {
 		//log.Panic("redis del error, " + err.Error())
 		return err
@@ -160,7 +164,7 @@ func Del(key ...string) error {
 }
 
 func HGet(key, field string) (string, error) {
-	val, err := redisClient.client.(redis.Cmdable).HGet(key, field).Result()
+	val, err := redisClient.client.(redis.Cmdable).HGet(ctx, key, field).Result()
 	if err != nil {
 		if err != redis.Nil {
 			//log.Panic("redis hget error, " + err.Error())
@@ -171,7 +175,7 @@ func HGet(key, field string) (string, error) {
 }
 
 func HGetAll(key string) (map[string]string, error) {
-	val, err := redisClient.client.(redis.Cmdable).HGetAll(key).Result()
+	val, err := redisClient.client.(redis.Cmdable).HGetAll(ctx, key).Result()
 	if err != nil {
 		if err != redis.Nil {
 			//log.Panic("redis hgetall error, " + err.Error())
@@ -182,7 +186,7 @@ func HGetAll(key string) (map[string]string, error) {
 }
 
 func HSet(key, field string, val interface{}) error {
-	err := redisClient.client.(redis.Cmdable).HSet(key, field, val).Err()
+	err := redisClient.client.(redis.Cmdable).HSet(ctx, key, field, val).Err()
 	if err != nil {
 		//log.Panic("redis hset error, " + err.Error())
 		return err
@@ -191,7 +195,7 @@ func HSet(key, field string, val interface{}) error {
 }
 
 func HDel(key string, fields ...string) error {
-	err := redisClient.client.(redis.Cmdable).HDel(key, fields...).Err()
+	err := redisClient.client.(redis.Cmdable).HDel(ctx, key, fields...).Err()
 	if err != nil {
 		//log.Panic("redis hdel error, " + err.Error())
 		return err
@@ -200,7 +204,7 @@ func HDel(key string, fields ...string) error {
 }
 
 func HExists(key string, field string) error {
-	has, err := redisClient.client.(redis.Cmdable).HExists(key, field).Result()
+	has, err := redisClient.client.(redis.Cmdable).HExists(ctx, key, field).Result()
 	if err != nil {
 		//log.Panic("redis HExists error, " + err.Error())
 		return err
@@ -212,7 +216,7 @@ func HExists(key string, field string) error {
 }
 
 func HIncrBy(key string, field string, num int64) (int64, error) {
-	resNum, err := redisClient.client.(redis.Cmdable).HIncrBy(key, field, num).Result()
+	resNum, err := redisClient.client.(redis.Cmdable).HIncrBy(ctx, key, field, num).Result()
 	if err != nil {
 		//log.Panic("redis HIncrBy error, " + err.Error())
 		return 0, err
@@ -221,7 +225,7 @@ func HIncrBy(key string, field string, num int64) (int64, error) {
 }
 
 func HKeys(key string) ([]string, error) {
-	keys, err := redisClient.client.(redis.Cmdable).HKeys(key).Result()
+	keys, err := redisClient.client.(redis.Cmdable).HKeys(ctx, key).Result()
 	if err != nil {
 		//log.Panic("redis HKeys error, " + err.Error())
 		return nil, err
@@ -230,7 +234,7 @@ func HKeys(key string) ([]string, error) {
 }
 
 func HLen(key string) (int64, error) {
-	resLen, err := redisClient.client.(redis.Cmdable).HLen(key).Result()
+	resLen, err := redisClient.client.(redis.Cmdable).HLen(ctx, key).Result()
 	if err != nil {
 		//log.Panic("redis HLen error, " + err.Error())
 		return 0, err
@@ -239,7 +243,7 @@ func HLen(key string) (int64, error) {
 }
 
 func HMGet(key string, fields ...string) ([]interface{}, error) {
-	res, err := redisClient.client.(redis.Cmdable).HMGet(key, fields...).Result()
+	res, err := redisClient.client.(redis.Cmdable).HMGet(ctx, key, fields...).Result()
 	if err != nil {
 		//log.Panic("redis HMGet error, " + err.Error())
 		return nil, err
@@ -248,7 +252,7 @@ func HMGet(key string, fields ...string) ([]interface{}, error) {
 }
 
 func HMSet(key string, fields map[string]interface{}) error {
-	_, err := redisClient.client.(redis.Cmdable).HMSet(key, fields).Result()
+	_, err := redisClient.client.(redis.Cmdable).HMSet(ctx, key, fields).Result()
 	if err != nil {
 		//log.Panic("redis HMSet error, " + err.Error())
 		return err
@@ -259,24 +263,24 @@ func HMSet(key string, fields map[string]interface{}) error {
 //原子自增
 func Incr(key string, expireTime time.Duration) error {
 	pipe := redisClient.client.(redis.Cmdable).TxPipeline()
-	pipe.Incr(key)
-	pipe.Expire(key, expireTime)
-	_, err := pipe.Exec()
+	pipe.Incr(ctx, key)
+	pipe.Expire(ctx, key, expireTime)
+	_, err := pipe.Exec(ctx)
 	return err
 }
 
 //原子自减
 func Decr(key string, expireTime time.Duration) error {
 	pipe := redisClient.client.(redis.Cmdable).TxPipeline()
-	pipe.Decr(key)
-	pipe.Expire(key, expireTime)
-	_, err := pipe.Exec()
+	pipe.Decr(ctx, key)
+	pipe.Expire(ctx, key, expireTime)
+	_, err := pipe.Exec(ctx)
 	return err
 }
 
 //设置key的有效时间
 func Expire(key string, expireTime time.Duration) error {
-	_, err := redisClient.client.(redis.Cmdable).Expire(key, expireTime).Result()
+	_, err := redisClient.client.(redis.Cmdable).Expire(ctx, key, expireTime).Result()
 	if err != nil {
 		//log.Panic("redis HMSet error, " + err.Error())
 		return err
@@ -286,7 +290,7 @@ func Expire(key string, expireTime time.Duration) error {
 
 //返回Key的有效时间返回秒
 func TTL(key string) time.Duration {
-	t, err := redisClient.client.(redis.Cmdable).TTL(key).Result()
+	t, err := redisClient.client.(redis.Cmdable).TTL(ctx, key).Result()
 	if err != nil {
 		//log.Panic("redis HMSet error, " + err.Error())
 		return 0
@@ -296,7 +300,7 @@ func TTL(key string) time.Duration {
 
 //返回key的有效时间毫秒
 func PTTL(key string) time.Duration {
-	t, err := redisClient.client.(redis.Cmdable).PTTL(key).Result()
+	t, err := redisClient.client.(redis.Cmdable).PTTL(ctx, key).Result()
 	if err != nil {
 		//log.Panic("redis HMSet error, " + err.Error())
 		return 0

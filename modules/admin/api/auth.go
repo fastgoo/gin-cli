@@ -2,7 +2,7 @@ package api
 
 import (
 	"fmt"
-	"gin-cli/modules/api_v1/models"
+	"gin-cli/modules/admin/models"
 	"gin-cli/pkg/e"
 	"gin-cli/pkg/response"
 	"gin-cli/pkg/util"
@@ -10,7 +10,7 @@ import (
 	"github.com/go-playground/validator/v10"
 
 	jwtMiddle "gin-cli/middleware/jwt"
-	myValidator "gin-cli/modules/api_v1/validator"
+	myValidator "gin-cli/modules/admin/validator"
 )
 
 // 注册账号

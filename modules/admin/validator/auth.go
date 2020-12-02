@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"gin-cli/modules/api_v1/models"
+	"gin-cli/modules/admin/models"
 	"gin-cli/pkg/e"
 	"gin-cli/pkg/util"
 	"gin-cli/plugins/redis"

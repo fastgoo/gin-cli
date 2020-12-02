@@ -17,6 +17,8 @@ type Claims struct {
 	jwt.StandardClaims
 	UserId   uint32 `json:"user_id"`
 	Username string `json:"username"`
+	Name     string `json:"name"`
+	Avatar   string `json:"avatar"`
 	IP       string `json:"ip"`
 	Status   int32  `json:"status"`
 }
@@ -51,7 +53,7 @@ func Auth() gin.HandlerFunc {
 			default:
 				code = e.ERR_AUTH_CHECK_TOKEN_FAIL
 			}
-		}else{
+		} else {
 			// 匹配登录的ip是否为当前ip,如果不是的话授权失败，需要重新去登录授权
 			if claims.IP != c.ClientIP() {
 				code = e.ERR_AUTH_CHECK_TOKEN_FAIL

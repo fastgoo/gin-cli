@@ -24,6 +24,10 @@ var errMsg = map[ErrorCode]map[string]string{
 
 	ERR_USERNAME_NOT_ACTIVATED: {"en": "username not activated", "ch": "该账号未激活"},
 	ERR_USERNAME_LOCKED:        {"en": "username is locked", "ch": "该账号已被锁定"},
+
+	ERR_UPLOAD_FILE_NOTFOUND:   {"en": "upload file not find", "ch": "上传文件未获取到"},
+	ERR_UPLOAD_FILE_ERROR:      {"en": "upload file fail", "ch": "上传文件失败"},
+	ERR_UPLOAD_FILE_QINIU_FAIL: {"en": "upload file fail by qiniuyun", "ch": "七牛云上传文件失败"},
 }
 
 var lang = os.Getenv("LANGUAGE")
