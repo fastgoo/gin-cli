@@ -71,6 +71,14 @@ func VerifyMobileFormat(mobileNum string) bool {
 	return reg.MatchString(mobileNum)
 }
 
+// 座机号码正则表达式
+func VerifyTelFormat(mobileNum string) bool {
+	regular := "^[0][1-9]{2,3}-[0-9]{5,10}$"
+	reg := regexp.MustCompile(regular)
+	return reg.MatchString(mobileNum)
+}
+
+
 // 密码安全级别正则表达式
 func VerifyPasswordSecurity(pwd string) int {
 	if len(pwd) < 6 {

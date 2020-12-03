@@ -28,6 +28,22 @@ var errMsg = map[ErrorCode]map[string]string{
 	ERR_UPLOAD_FILE_NOTFOUND:   {"en": "upload file not find", "ch": "上传文件未获取到"},
 	ERR_UPLOAD_FILE_ERROR:      {"en": "upload file fail", "ch": "上传文件失败"},
 	ERR_UPLOAD_FILE_QINIU_FAIL: {"en": "upload file fail by qiniuyun", "ch": "七牛云上传文件失败"},
+
+	ERR_PARAMS_COMPANY_EMPTY_NAME:              {"en": "company name is empty", "ch": "公司名称不能为空"},
+	ERR_PARAMS_COMPANY_EMPTY_CONTACT_NAME:      {"en": "contact name is  is empty", "ch": "公司联系人不能为空"},
+	ERR_PARAMS_COMPANY_EMPTY_CONTACT_MOBILE:    {"en": "contact tel is empty", "ch": "公司联系电话不能为空"},
+	ERR_PARAMS_COMPANY_EMPTY_ADDRESS:           {"en": "address is empty", "ch": "公司地址不能为空"},
+	ERR_PARAMS_COMPANY_EMPTY_ADDRESS_POST:      {"en": "address pos is empty", "ch": "公司地址坐标不能为空"},
+	ERR_PARAMS_COMPANY_EMPTY_LICENSE_PIC:       {"en": "license pic is empty", "ch": "营业执照不能为空"},
+	ERR_COMPANY_NAME_EXIST:                     {"en": "company name exist", "ch": "公司名称已存在"},
+	ERR_COMPANY_CONTACT_MOBILE_ERROR:           {"en": "contact tal invalid", "ch": "公司联系电话输入异常"},
+	ERR_COMPANY_ADDRESS_POST_ERROR:             {"en": "address pos invalid", "ch": "公司地址坐标输入异常"},
+	ERR_COMPANY_LICENSE_PIC_ERROR:              {"en": "license pic invalid", "ch": "营业执照输入异常"},
+	ERR_COMPANY_CREATE_FAIL:                    {"en": "company create fail", "ch": "公司主体信息写入失败"},
+	ERR_COMPANY_GET_FAIL:                       {"en": "company info get fail", "ch": "获取公司信息失败"},
+	ERR_COMPANY_VERIFY_FAIL:                    {"en": "company verify fail", "ch": "公司主体审核失败"},
+	ERR_PARAMS_COMPANY_VERIFY_EMPTY_COMPANY_ID: {"en": "company id is empty", "ch": "公司id不能为空"},
+	ERR_PARAMS_COMPANY_VERIFY_STATUS_ERROR:     {"en": "company verify status invalid", "ch": "公司审核状态异常"},
 }
 
 var lang = os.Getenv("LANGUAGE")

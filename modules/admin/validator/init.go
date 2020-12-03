@@ -11,5 +11,11 @@ func init() {
 		v.RegisterValidation("UsernameExistValid", usernameExistValid)
 		v.RegisterValidation("UsernameNotExistValid", usernameNotExistValid)
 		v.RegisterValidation("PassSecurityValid", passSecurityValid)
+
+		v.RegisterValidation("CompanyNameNotExistValid", companyNameNotExistValid)
+		v.RegisterValidation("TelValid", telValid)
+		v.RegisterValidation("LicensePicValid", licensePicValid)
+		v.RegisterValidation("AddressPosValid", addressPosValid)
+		v.RegisterValidation("VerifyStatusValid", verifyStatusValid)
 	}
 }

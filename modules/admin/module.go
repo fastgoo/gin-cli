@@ -20,13 +20,17 @@ func router() {
 	auth := admin.Group("/")
 	auth.Use(jwt.Auth())
 	{
-		auth.POST("/login", api.Login)
 		auth.POST("/auth", api.Auth)
+		admin.POST("/upload", api.Upload)
+
+		admin.POST("/company/save", api.CompanySave)
+		admin.POST("/company/verify", api.CompanyVerify)
+		admin.GET("/company/:company_id", api.CompanyInfo)
 	}
-	admin.POST("/login2", api.Login)
+	admin.POST("/login", api.Login)
 	admin.POST("/register", api.Register)
 	admin.POST("/test", api.Test)
-	admin.POST("/upload", api.Upload)
+
 	//调试写入日志
 	//logger.Info("test", "666", "hahah")
 }

@@ -51,25 +51,26 @@ Comments
 // WkCompany struct is a row record of the wk_company table in the we-work database
 type WkCompany struct {
 	//[ 0] id                                             uint                 null: false  primary: true   isArray: false  auto: true   col: uint            len: -1      default: []
-	ID uint32
+	ID uint32 `json:"id"`
 	//[ 1] name                                           varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	Name string // 公司名称
+	Name string `json:"name"` // 公司名称
 	//[ 2] contact_name                                   varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	ContactName string // 公司联系人
+	ContactName string `json:"contact_name"` // 公司联系人
 	//[ 3] contact_mobile                                 varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	ContactMobile string // 公司联系电话
+	ContactMobile string `json:"contact_mobile"` // 公司联系电话
 	//[ 4] address                                        varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	Address string // 公司地址
+	Address string `json:"address"` // 公司地址
 	//[ 5] address_pos                                    varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	AddressPos string // 公司坐标
+	AddressPos string `json:"address_pos"` // 公司坐标
 	//[ 6] license_pic                                    varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	LicensePic string // 营业执照图片
+	LicensePic   string `json:"license_pic"`   // 营业执照图片
+	VerifyRemark string `json:"verify_remark"` // 审核备注：审核不通过需要备注
 	//[ 7] status                                         tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [-1]
-	Status int32 // -1未激活 0正常 1锁定
+	Status int32 `json:"status"` // -1未激活 0正常 1锁定
 	//[ 8] create_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	CreateTime time.Time
+	CreateTime time.Time `json:"create_time,omitempty"`
 	//[ 9] update_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	UpdateTime time.Time
+	UpdateTime time.Time `json:"update_time,omitempty"`
 }
 
 var wk_companyTableInfo = &TableInfo{
