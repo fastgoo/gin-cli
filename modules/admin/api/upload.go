@@ -25,6 +25,11 @@ func Upload(c *gin.Context) {
 		Key:    "license/" + strconv.Itoa(int(time.Now().Unix())) + strconv.Itoa(util.GetRandom(1000, 9999)) + "." + util.FileExt(f.Filename),
 		Hash:   "",
 	}
+	qiniuInfo, has := qiniuModel.Get("id,`key`,`hash`", "size = ? AND name = ?", qiniuModel.Size, qiniuModel.Name)
+	if has {
+		response.Success(c, e.SUCCESS, map[string]string{"url": qiniu.GetUrl(qiniuInfo.Key), "hash": qiniuInfo.Hash})
+		return
+	}
 	buf := make([]byte, f.Size)
 	file, err := f.Open()
 	file.Read(buf)

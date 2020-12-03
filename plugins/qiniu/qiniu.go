@@ -74,6 +74,10 @@ func newStorageConfig() (upToken string, cfg storage.Config) {
 	return
 }
 
+func GetUrl(key string) string {
+	return qCfg.Host + "/" + key
+}
+
 func UploadByForm(localFile, key string) (error, string, string) {
 	token, cfg := newStorageConfig()
 	formUploader := storage.NewFormUploader(&cfg)
