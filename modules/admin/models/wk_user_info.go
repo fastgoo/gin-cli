@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"math"
 	"time"
 
 	"github.com/guregu/null"
@@ -36,7 +37,7 @@ CREATE TABLE `wk_user_info` (
 
 JSON Sample
 -------------------------------------
-{    "status": 28,    "update_time": "2092-01-10T13:13:46.376668361+08:00",    "password": "PjQarEkVultWNdtyaDDefvaUK",    "name": "SdRjyVHQPqldcrkOjiaFPevzX",    "avatar": "lSqPMhYIYItmyefMkqoxbNfmD",    "create_user_id": 97,    "username": "kIrsZBORslcMkwqCzBVdhjdcq",    "create_time": "2037-11-29T23:16:47.110388191+08:00",    "id": 38}
+{    "avatar": "EhzgebFsAFxEyeJNbSFizYyba",    "status": 6,    "create_time": "2118-01-04T12:54:04.687881929+08:00",    "update_time": "2247-07-09T04:04:07.523449518+08:00",    "id": 93,    "create_user_id": 20,    "username": "ivdExrKwBuPHISVFjwdNQBjNl",    "password": "rTCOpOaYSdwVnnViWOhMZmQSO",    "name": "hArltWmTGjJzlyDNajhWuLWdV"}
 
 
 Comments
@@ -50,23 +51,30 @@ Comments
 // WkUserInfo struct is a row record of the wk_user_info table in the we-work database
 type WkUserInfo struct {
 	//[ 0] id                                             uint                 null: false  primary: true   isArray: false  auto: true   col: uint            len: -1      default: []
-	ID uint32
+	ID uint32 `json:"id"`
 	//[ 1] name                                           varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	Name string // 昵称
+	Name string `json:"name"` // 昵称
 	//[ 2] avatar                                         varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	Avatar string // 头像
+	Avatar string `json:"avatar"` // 头像
 	//[ 3] create_user_id                                 int                  null: false  primary: false  isArray: false  auto: false  col: int             len: -1      default: [0]
-	CreateUserID int32 // 创建人id
+	CreateUserID int32 `json:"create_user_id"` // 创建人id
 	//[ 4] username                                       char(30)             null: false  primary: false  isArray: false  auto: false  col: char            len: 30      default: []
-	Username string // 用户名
+	Username string `json:"username"` // 用户名
 	//[ 5] password                                       varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	Password string // 密码
+	Password string `json:"password"` // 密码
 	//[ 6] status                                         tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [-1]
-	Status int32 // -1未激活 0正常 1锁定
+	Status int32 `json:"status"` // -1未激活 0正常 1锁定
 	//[ 7] create_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	CreateTime time.Time
+	CreateTime time.Time `json:"create_time"`
 	//[ 8] update_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	UpdateTime time.Time
+	UpdateTime time.Time `json:"update_time"`
+}
+
+type wkuserinfoPages struct {
+	Rows        []WkUserInfo `json:"rows"`
+	Count       int          `json:"count"`
+	CurrentPage int          `json:"current_page"`
+	MaxPage     int          `json:"max_page"`
 }
 
 var wk_user_infoTableInfo = &TableInfo{
@@ -270,8 +278,7 @@ func (w *WkUserInfo) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-/*
-func (w *WkUserInfo) BeforeSave() error {
+/*func (w *WkUserInfo) BeforeSave() error {
 	return nil
 }
 
@@ -337,9 +344,24 @@ func (w *WkUserInfo) List(fields string, order string, page int, nums int, query
 	return
 }
 
+// Get Page
+func (w *WkUserInfo) Pages(fields string, order string, page int, nums int, query interface{}, args ...interface{}) (pages wkuserinfoPages, has bool) {
+	var ret []WkUserInfo
+	err := DB.Select(fields).Where(query, args...).Order(order).Limit(nums).Offset((page - 1) * nums).Find(&ret).Error
+	if err != nil || len(ret) == 0 {
+		return
+	}
+	has = true
+	pages.Rows = ret
+	pages.Count = int(w.Count(query, args...))
+	pages.CurrentPage = page
+	pages.MaxPage = int(math.Ceil(float64(pages.Count) / float64(nums)))
+	return
+}
+
 // Update
 func (w *WkUserInfo) Update(data map[string]interface{}, query interface{}, args ...interface{}) bool {
-	if DB.Model(WkUserInfo{}).Where(query, args...).Updates(data).RowsAffected == 0 {
+	if DB.Model(WkUserInfo{}).Omit("CreateTime", "UpdateTime").Where(query, args...).Updates(data).RowsAffected == 0 {
 		return false
 	}
 	return true
@@ -347,7 +369,7 @@ func (w *WkUserInfo) Update(data map[string]interface{}, query interface{}, args
 
 // Insert
 func (w *WkUserInfo) Insert(data WkUserInfo) uint32 {
-	err := DB.Omit("CreateTime", "UpdateTime", "Status").Create(&data).Error
+	err := DB.Omit("CreateTime", "UpdateTime").Create(&data).Error
 	if err != nil {
 		return 0
 	}

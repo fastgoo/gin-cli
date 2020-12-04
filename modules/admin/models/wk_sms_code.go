@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"math"
 	"time"
 
 	"github.com/guregu/null"
@@ -37,7 +38,7 @@ CREATE TABLE `wk_sms_code` (
 
 JSON Sample
 -------------------------------------
-{    "mobile": "SHMCCKytdIcPbAYJlqIKnYmDd",    "status": 22,    "send_status": 57,    "ip": "XHkJjiJDsinJsjUTheAJIvmBI",    "type": 99,    "code": "KVdbORZNvFjnKdRcfqRJhOGEG",    "expire_time": 59,    "created_time": "2246-03-19T14:43:08.124146755+08:00",    "updated_time": "2033-04-13T07:02:12.080775949+08:00",    "id": 67}
+{    "status": 68,    "updated_time": "2307-02-04T07:35:37.535524287+08:00",    "id": 82,    "type": 30,    "mobile": "gflpSmFmZLcxefBjZnhfWOQwo",    "send_status": 67,    "created_time": "2144-02-28T23:40:55.710621212+08:00",    "ip": "tyktZSOUuOqAecDeufGaPKuxV",    "code": "VwgKOxxPdwoiiOwuXVpUjopVb",    "expire_time": 64}
 
 
 Comments
@@ -53,26 +54,33 @@ Comments
 // WkSmsCode struct is a row record of the wk_sms_code table in the we-work database
 type WkSmsCode struct {
 	//[ 0] id                                             uint                 null: false  primary: true   isArray: false  auto: true   col: uint            len: -1      default: []
-	ID uint32
+	ID uint32 `json:"id"`
 	//[ 1] type                                           tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [1]
-	Type int32 // 1注册账号 2解除绑定 3绑定新账号 4忘记密码  5安全校验
+	Type int32 `json:"type"` // 1注册账号 2解除绑定 3绑定新账号 4忘记密码  5安全校验
 	//[ 2] ip                                             char(20)             null: false  primary: false  isArray: false  auto: false  col: char            len: 20      default: []
-	IP string
+	IP string `json:"ip"`
 	//[ 3] mobile                                         char(20)             null: false  primary: false  isArray: false  auto: false  col: char            len: 20      default: []
-	Mobile string // 手机号码
+	Mobile string `json:"mobile"` // 手机号码
 	//[ 4] code                                           char(10)             null: false  primary: false  isArray: false  auto: false  col: char            len: 10      default: []
-	Code string // 验证码
+	Code string `json:"code"` // 验证码
 	//[ 5] expire_time                                    uint                 null: false  primary: false  isArray: false  auto: false  col: uint            len: -1      default: []
-	ExpireTime uint32 // 有效时间
+	ExpireTime uint32 `json:"expire_time"` // 有效时间
 	//[ 6] status                                         tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [0]
-	Status int32 // 0未使用  1已使用
+	Status int32 `json:"status"` // 0未使用  1已使用
 	//[ 7] send_status                                    utinyint             null: false  primary: false  isArray: false  auto: false  col: utinyint        len: -1      default: [0]
-	SendStatus uint32 // 短信发送状态
+	SendStatus uint32 `json:"send_status"` // 短信发送状态
 	//[ 8] created_time                                   timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	CreatedTime time.Time // 创建时间
+	CreatedTime time.Time `json:"created_time"` // 创建时间
 	//[ 9] updated_time                                   timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	UpdatedTime time.Time // 更新时间
+	UpdatedTime time.Time `json:"updated_time"` // 更新时间
 
+}
+
+type wksmscodePages struct {
+	Rows        []WkSmsCode `json:"rows"`
+	Count       int         `json:"count"`
+	CurrentPage int         `json:"current_page"`
+	MaxPage     int         `json:"max_page"`
 }
 
 var wk_sms_codeTableInfo = &TableInfo{
@@ -297,11 +305,11 @@ func (w *WkSmsCode) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (w *WkSmsCode) BeforeSave() error {
+/*func (w *WkSmsCode) BeforeSave() error {
 	return nil
 }
 
-/*func (w *WkSmsCode) BeforeCreate(tx *gorm.DB) (err error) {
+func (w *WkSmsCode) BeforeCreate(tx *gorm.DB) (err error) {
     return
 }
 
@@ -363,9 +371,24 @@ func (w *WkSmsCode) List(fields string, order string, page int, nums int, query 
 	return
 }
 
+// Get Page
+func (w *WkSmsCode) Pages(fields string, order string, page int, nums int, query interface{}, args ...interface{}) (pages wksmscodePages, has bool) {
+	var ret []WkSmsCode
+	err := DB.Select(fields).Where(query, args...).Order(order).Limit(nums).Offset((page - 1) * nums).Find(&ret).Error
+	if err != nil || len(ret) == 0 {
+		return
+	}
+	has = true
+	pages.Rows = ret
+	pages.Count = int(w.Count(query, args...))
+	pages.CurrentPage = page
+	pages.MaxPage = int(math.Ceil(float64(pages.Count) / float64(nums)))
+	return
+}
+
 // Update
 func (w *WkSmsCode) Update(data map[string]interface{}, query interface{}, args ...interface{}) bool {
-	if DB.Model(WkSmsCode{}).Where(query, args...).Updates(data).RowsAffected == 0 {
+	if DB.Model(WkSmsCode{}).Omit("CreateTime", "UpdateTime").Where(query, args...).Updates(data).RowsAffected == 0 {
 		return false
 	}
 	return true
@@ -373,7 +396,7 @@ func (w *WkSmsCode) Update(data map[string]interface{}, query interface{}, args 
 
 // Insert
 func (w *WkSmsCode) Insert(data WkSmsCode) uint32 {
-	err := DB.Create(&data).Error
+	err := DB.Omit("CreateTime", "UpdateTime").Create(&data).Error
 	if err != nil {
 		return 0
 	}

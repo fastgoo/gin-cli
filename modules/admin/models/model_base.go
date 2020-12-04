@@ -33,10 +33,12 @@ func init() {
 	tables["wk_company"] = wk_companyTableInfo
 	tables["wk_company_group"] = wk_company_groupTableInfo
 	tables["wk_menus"] = wk_menusTableInfo
+	tables["wk_qiniu_file_record"] = wk_qiniu_file_recordTableInfo
 	tables["wk_roles"] = wk_rolesTableInfo
 	tables["wk_sms_code"] = wk_sms_codeTableInfo
 	tables["wk_user_auth"] = wk_user_authTableInfo
 	tables["wk_user_info"] = wk_user_infoTableInfo
+	tables["wk_user_login_record"] = wk_user_login_recordTableInfo
 }
 
 // String describe the action

@@ -25,7 +25,8 @@ func router() {
 
 		admin.POST("/company/save", api.CompanySave)
 		admin.POST("/company/verify", api.CompanyVerify)
-		admin.GET("/company/:company_id", api.CompanyInfo)
+		admin.GET("/company/list", api.CompanyList)
+		admin.GET("/company/detail/:company_id", api.CompanyInfo)
 	}
 	admin.POST("/login", api.Login)
 	admin.POST("/register", api.Register)

@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"math"
 	"time"
 
 	"github.com/guregu/null"
@@ -40,7 +41,7 @@ CREATE TABLE `wk_menus` (
 
 JSON Sample
 -------------------------------------
-{    "routers": "wbnyAUZvYlseSZSbTOzGtMSCF",    "sort": 34,    "icon": "qyLziAVnTLGoMwVFDUtIQURwi",    "key": "EycAKpVBhjYHsMQDcSfdPvPRV",    "is_action": 31,    "is_default": 7,    "created_time": "2075-02-04T04:05:50.30040474+08:00",    "updated_time": "2071-06-18T12:33:06.461086645+08:00",    "id": 86,    "path": "LDZUGsZVdTrNZYxYFDKYvFuGB",    "title": "dArxQXahxGpaYDWVFkzSymOYj",    "component": "wNbGMwyYdTRLqfLmpPfiSjrRX",    "status": 61,    "pid": 63}
+{    "updated_time": "2049-06-16T19:55:58.06482824+08:00",    "key": "NIpbfYgeBeHLUBahzAvovGAuc",    "component": "WfSHewYrorThfxHywaLWplbmI",    "path": "KqVwxCQRIqOlAdcbPdvqeVXdl",    "is_action": 17,    "status": 65,    "created_time": "2026-11-17T19:25:01.961300337+08:00",    "title": "WmhAgPPyswZbydcJqqzZbysgG",    "id": 95,    "pid": 39,    "icon": "rXyOmTOuJeaWepQFEfMvWMiYd",    "routers": "XSNbQrKpoardDZGsXbOslLFhe",    "sort": 39,    "is_default": 90}
 
 
 Comments
@@ -58,33 +59,40 @@ Comments
 // WkMenus struct is a row record of the wk_menus table in the we-work database
 type WkMenus struct {
 	//[ 0] id                                             uint                 null: false  primary: true   isArray: false  auto: true   col: uint            len: -1      default: []
-	ID uint32
+	ID uint32 `json:"id"`
 	//[ 1] pid                                            uint                 null: false  primary: false  isArray: false  auto: false  col: uint            len: -1      default: [0]
-	Pid uint32 // 父级菜单ID
+	Pid uint32 `json:"pid"` // 父级菜单ID
 	//[ 2] title                                          varchar(50)          null: false  primary: false  isArray: false  auto: false  col: varchar         len: 50      default: []
-	Title string // 菜单名称
+	Title string `json:"title"` // 菜单名称
 	//[ 3] key                                            varchar(50)          null: false  primary: false  isArray: false  auto: false  col: varchar         len: 50      default: []
-	Key string // 菜单key
+	Key string `json:"key"` // 菜单key
 	//[ 4] component                                      varchar(50)          null: false  primary: false  isArray: false  auto: false  col: varchar         len: 50      default: []
-	Component string // 菜单组件
+	Component string `json:"component"` // 菜单组件
 	//[ 5] icon                                           varchar(20)          null: false  primary: false  isArray: false  auto: false  col: varchar         len: 20      default: []
-	Icon string // 菜单icon
+	Icon string `json:"icon"` // 菜单icon
 	//[ 6] routers                                        text(65535)          null: true   primary: false  isArray: false  auto: false  col: text            len: 65535   default: []
-	Routers sql.NullString // 菜单路由权限
+	Routers sql.NullString `json:"routers"` // 菜单路由权限
 	//[ 7] sort                                           utinyint             null: false  primary: false  isArray: false  auto: false  col: utinyint        len: -1      default: [99]
-	Sort uint32 // 菜单顺序
+	Sort uint32 `json:"sort"` // 菜单顺序
 	//[ 8] path                                           varchar(100)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 100     default: []
-	Path string // 菜单路由
+	Path string `json:"path"` // 菜单路由
 	//[ 9] is_action                                      tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [0]
-	IsAction int32 // 是否是操作权限
+	IsAction int32 `json:"is_action"` // 是否是操作权限
 	//[10] is_default                                     utinyint             null: false  primary: false  isArray: false  auto: false  col: utinyint        len: -1      default: [0]
-	IsDefault uint32 // 是否是默认，默认不可删除，修改
+	IsDefault uint32 `json:"is_default"` // 是否是默认，默认不可删除，修改
 	//[11] status                                         utinyint             null: false  primary: false  isArray: false  auto: false  col: utinyint        len: -1      default: [0]
-	Status uint32 // 0 正常 1不显示
+	Status uint32 `json:"status"` // 0 正常 1不显示
 	//[12] created_time                                   timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	CreatedTime time.Time
+	CreatedTime time.Time `json:"created_time"`
 	//[13] updated_time                                   timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	UpdatedTime time.Time
+	UpdatedTime time.Time `json:"updated_time"`
+}
+
+type wkmenusPages struct {
+	Rows        []WkMenus `json:"rows"`
+	Count       int       `json:"count"`
+	CurrentPage int       `json:"current_page"`
+	MaxPage     int       `json:"max_page"`
 }
 
 var wk_menusTableInfo = &TableInfo{
@@ -393,11 +401,11 @@ func (w *WkMenus) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (w *WkMenus) BeforeSave() error {
+/*func (w *WkMenus) BeforeSave() error {
 	return nil
 }
 
-/*func (w *WkMenus) BeforeCreate(tx *gorm.DB) (err error) {
+func (w *WkMenus) BeforeCreate(tx *gorm.DB) (err error) {
     return
 }
 
@@ -459,9 +467,24 @@ func (w *WkMenus) List(fields string, order string, page int, nums int, query in
 	return
 }
 
+// Get Page
+func (w *WkMenus) Pages(fields string, order string, page int, nums int, query interface{}, args ...interface{}) (pages wkmenusPages, has bool) {
+	var ret []WkMenus
+	err := DB.Select(fields).Where(query, args...).Order(order).Limit(nums).Offset((page - 1) * nums).Find(&ret).Error
+	if err != nil || len(ret) == 0 {
+		return
+	}
+	has = true
+	pages.Rows = ret
+	pages.Count = int(w.Count(query, args...))
+	pages.CurrentPage = page
+	pages.MaxPage = int(math.Ceil(float64(pages.Count) / float64(nums)))
+	return
+}
+
 // Update
 func (w *WkMenus) Update(data map[string]interface{}, query interface{}, args ...interface{}) bool {
-	if DB.Model(WkMenus{}).Where(query, args...).Updates(data).RowsAffected == 0 {
+	if DB.Model(WkMenus{}).Omit("CreateTime", "UpdateTime").Where(query, args...).Updates(data).RowsAffected == 0 {
 		return false
 	}
 	return true
@@ -469,7 +492,7 @@ func (w *WkMenus) Update(data map[string]interface{}, query interface{}, args ..
 
 // Insert
 func (w *WkMenus) Insert(data WkMenus) uint32 {
-	err := DB.Create(&data).Error
+	err := DB.Omit("CreateTime", "UpdateTime").Create(&data).Error
 	if err != nil {
 		return 0
 	}

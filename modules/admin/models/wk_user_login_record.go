@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"math"
 	"time"
 
 	"github.com/guregu/null"
@@ -27,11 +28,11 @@ CREATE TABLE `wk_user_login_record` (
   `area` varchar(255) NOT NULL DEFAULT '' COMMENT 'ip地址',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COMMENT='用户登录记录表'
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COMMENT='用户登录记录表'
 
 JSON Sample
 -------------------------------------
-{    "id": 81,    "user_id": 28,    "ip": "yPYEEcHVHSssuzWWnPAHSGAvp",    "area": "DKfmvArcODlAucNoksKSticfX",    "create_time": "2281-10-28T17:36:29.597923937+08:00"}
+{    "create_time": "2266-11-22T01:51:06.013830167+08:00",    "id": 88,    "user_id": 37,    "ip": "XlhsfhvAhUFoJlBlqABfeArLZ",    "area": "BjzoMCgWnjuXSfkLPpeMAACIe"}
 
 
 Comments
@@ -46,15 +47,22 @@ Comments
 // WkUserLoginRecord struct is a row record of the wk_user_login_record table in the we-work database
 type WkUserLoginRecord struct {
 	//[ 0] id                                             uint                 null: false  primary: true   isArray: false  auto: true   col: uint            len: -1      default: []
-	ID uint32
+	ID uint32 `json:"id"`
 	//[ 1] user_id                                        uint                 null: false  primary: false  isArray: false  auto: false  col: uint            len: -1      default: [0]
-	UserID uint32 // 用户id
+	UserID uint32 `json:"user_id"` // 用户id
 	//[ 2] ip                                             varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	IP string // 登录的ip地址
+	IP string `json:"ip"` // 登录的ip地址
 	//[ 3] area                                           varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	Area string // ip地址
+	Area string `json:"area"` // ip地址
 	//[ 4] create_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	CreateTime time.Time
+	CreateTime time.Time `json:"create_time"`
+}
+
+type wkuserloginrecordPages struct {
+	Rows        []WkUserLoginRecord `json:"rows"`
+	Count       int                 `json:"count"`
+	CurrentPage int                 `json:"current_page"`
+	MaxPage     int                 `json:"max_page"`
 }
 
 var wk_user_login_recordTableInfo = &TableInfo{
@@ -174,8 +182,7 @@ func (w *WkUserLoginRecord) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-/*
-func (w *WkUserLoginRecord) BeforeSave() error {
+/*func (w *WkUserLoginRecord) BeforeSave() error {
 	return nil
 }
 
@@ -241,9 +248,24 @@ func (w *WkUserLoginRecord) List(fields string, order string, page int, nums int
 	return
 }
 
+// Get Page
+func (w *WkUserLoginRecord) Pages(fields string, order string, page int, nums int, query interface{}, args ...interface{}) (pages wkuserloginrecordPages, has bool) {
+	var ret []WkUserLoginRecord
+	err := DB.Select(fields).Where(query, args...).Order(order).Limit(nums).Offset((page - 1) * nums).Find(&ret).Error
+	if err != nil || len(ret) == 0 {
+		return
+	}
+	has = true
+	pages.Rows = ret
+	pages.Count = int(w.Count(query, args...))
+	pages.CurrentPage = page
+	pages.MaxPage = int(math.Ceil(float64(pages.Count) / float64(nums)))
+	return
+}
+
 // Update
 func (w *WkUserLoginRecord) Update(data map[string]interface{}, query interface{}, args ...interface{}) bool {
-	if DB.Model(WkUserLoginRecord{}).Where(query, args...).Updates(data).RowsAffected == 0 {
+	if DB.Model(WkUserLoginRecord{}).Omit("CreateTime", "UpdateTime").Where(query, args...).Updates(data).RowsAffected == 0 {
 		return false
 	}
 	return true
@@ -251,7 +273,7 @@ func (w *WkUserLoginRecord) Update(data map[string]interface{}, query interface{
 
 // Insert
 func (w *WkUserLoginRecord) Insert(data WkUserLoginRecord) uint32 {
-	err := DB.Omit("CreateTime").Create(&data).Error
+	err := DB.Omit("CreateTime", "UpdateTime").Create(&data).Error
 	if err != nil {
 		return 0
 	}

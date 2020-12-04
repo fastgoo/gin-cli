@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"math"
 	"time"
 
 	"github.com/guregu/null"
@@ -35,7 +36,7 @@ CREATE TABLE `wk_roles` (
 
 JSON Sample
 -------------------------------------
-{    "update_time": "2068-01-24T19:30:38.053055239+08:00",    "id": 33,    "username": "YqqqVrMxdABxqBEkqmhjpWTKo",    "password": "bHDUdfHeZiAwFghwLBtrahWnO",    "head_img": "CERcKJOpzrRujjmcvznSwfqSw",    "nickname": "pzJAyJnKKXjVeqjbFHhnLshcF",    "status": 45,    "create_time": "2272-04-18T16:49:31.674772102+08:00"}
+{    "username": "OXTPiFyJRgbHZWvNdOqAgMKBj",    "password": "WTKBPEKFjrmTkxUTUteCBFkzV",    "head_img": "hMYrBdAXjIAlZaHqBpkjGPjuA",    "nickname": "ksQDqHwdCXuhrCzWvGxTEXMuk",    "status": 14,    "create_time": "2032-04-12T08:11:29.481748142+08:00",    "update_time": "2256-09-29T13:19:26.033200857+08:00",    "id": 97}
 
 
 Comments
@@ -49,21 +50,28 @@ Comments
 // WkRoles struct is a row record of the wk_roles table in the we-work database
 type WkRoles struct {
 	//[ 0] id                                             uint                 null: false  primary: true   isArray: false  auto: true   col: uint            len: -1      default: []
-	ID uint32
+	ID uint32 `json:"id"`
 	//[ 1] username                                       char(30)             null: false  primary: false  isArray: false  auto: false  col: char            len: 30      default: []
-	Username string // 用户名
+	Username string `json:"username"` // 用户名
 	//[ 2] password                                       varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	Password string // 密码
+	Password string `json:"password"` // 密码
 	//[ 3] head_img                                       varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	HeadImg string // 头像
+	HeadImg string `json:"head_img"` // 头像
 	//[ 4] nickname                                       varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	Nickname string // 昵称
+	Nickname string `json:"nickname"` // 昵称
 	//[ 5] status                                         tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [-1]
-	Status int32 // -1未激活 0正常 1锁定
+	Status int32 `json:"status"` // -1未激活 0正常 1锁定
 	//[ 6] create_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	CreateTime time.Time
+	CreateTime time.Time `json:"create_time"`
 	//[ 7] update_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	UpdateTime time.Time
+	UpdateTime time.Time `json:"update_time"`
+}
+
+type wkrolesPages struct {
+	Rows        []WkRoles `json:"rows"`
+	Count       int       `json:"count"`
+	CurrentPage int       `json:"current_page"`
+	MaxPage     int       `json:"max_page"`
 }
 
 var wk_rolesTableInfo = &TableInfo{
@@ -246,11 +254,11 @@ func (w *WkRoles) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (w *WkRoles) BeforeSave() error {
+/*func (w *WkRoles) BeforeSave() error {
 	return nil
 }
 
-/*func (w *WkRoles) BeforeCreate(tx *gorm.DB) (err error) {
+func (w *WkRoles) BeforeCreate(tx *gorm.DB) (err error) {
     return
 }
 
@@ -312,9 +320,24 @@ func (w *WkRoles) List(fields string, order string, page int, nums int, query in
 	return
 }
 
+// Get Page
+func (w *WkRoles) Pages(fields string, order string, page int, nums int, query interface{}, args ...interface{}) (pages wkrolesPages, has bool) {
+	var ret []WkRoles
+	err := DB.Select(fields).Where(query, args...).Order(order).Limit(nums).Offset((page - 1) * nums).Find(&ret).Error
+	if err != nil || len(ret) == 0 {
+		return
+	}
+	has = true
+	pages.Rows = ret
+	pages.Count = int(w.Count(query, args...))
+	pages.CurrentPage = page
+	pages.MaxPage = int(math.Ceil(float64(pages.Count) / float64(nums)))
+	return
+}
+
 // Update
 func (w *WkRoles) Update(data map[string]interface{}, query interface{}, args ...interface{}) bool {
-	if DB.Model(WkRoles{}).Where(query, args...).Updates(data).RowsAffected == 0 {
+	if DB.Model(WkRoles{}).Omit("CreateTime", "UpdateTime").Where(query, args...).Updates(data).RowsAffected == 0 {
 		return false
 	}
 	return true
@@ -322,7 +345,7 @@ func (w *WkRoles) Update(data map[string]interface{}, query interface{}, args ..
 
 // Insert
 func (w *WkRoles) Insert(data WkRoles) uint32 {
-	err := DB.Create(&data).Error
+	err := DB.Omit("CreateTime", "UpdateTime").Create(&data).Error
 	if err != nil {
 		return 0
 	}

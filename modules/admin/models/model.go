@@ -19,6 +19,7 @@ type config struct {
 	Lifetime  int      `env:"MYSQL_LIFTTIME" envDefault:"86400"`
 	IdleConns int      `env:"MYSQL_IDLECONNS" envDefault:"20"`
 	OpenConns int      `env:"MYSQL_OPENCONNS" envDefault:"100"`
+	Debug     bool     `env:"MYSQL_DEBUG" envDefault:"false"`
 }
 
 func Initialize() {
@@ -31,6 +32,9 @@ func Initialize() {
 	DB, err = gorm.Open(mysql.Open(cfg.Master), &gorm.Config{})
 	if err != nil {
 		log.Fatal("master: ", err)
+	}
+	if cfg.Debug {
+		DB = DB.Debug()
 	}
 
 	var slaves []gorm.Dialector

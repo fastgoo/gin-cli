@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"math"
 	"time"
 
 	"github.com/guregu/null"
@@ -31,7 +32,7 @@ CREATE TABLE `wk_user_auth` (
 
 JSON Sample
 -------------------------------------
-{    "mark": "gmemzdOuGEZyfJxXGtrncopOO",    "user_id": 73,    "create_time": "2159-09-16T04:10:48.161823996+08:00",    "id": 43,    "type": 70}
+{    "type": 23,    "mark": "rQSajDvlbqpMrAYnknTPwyJtX",    "user_id": 22,    "create_time": "2106-06-25T04:23:28.159238123+08:00",    "id": 79}
 
 
 Comments
@@ -46,15 +47,22 @@ Comments
 // WkUserAuth struct is a row record of the wk_user_auth table in the we-work database
 type WkUserAuth struct {
 	//[ 0] id                                             uint                 null: false  primary: true   isArray: false  auto: true   col: uint            len: -1      default: []
-	ID uint32
+	ID uint32 `json:"id"`
 	//[ 1] type                                           utinyint             null: false  primary: false  isArray: false  auto: false  col: utinyint        len: -1      default: [1]
-	Type uint32 // 授权类型：1企业微信
+	Type uint32 `json:"type"` // 授权类型：1企业微信
 	//[ 2] mark                                           char(30)             null: false  primary: false  isArray: false  auto: false  col: char            len: 30      default: []
-	Mark string // 授权标识
+	Mark string `json:"mark"` // 授权标识
 	//[ 3] user_id                                        int                  null: false  primary: false  isArray: false  auto: false  col: int             len: -1      default: [0]
-	UserID int32 // 绑定的用户id
+	UserID int32 `json:"user_id"` // 绑定的用户id
 	//[ 4] create_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	CreateTime time.Time
+	CreateTime time.Time `json:"create_time"`
+}
+
+type wkuserauthPages struct {
+	Rows        []WkUserAuth `json:"rows"`
+	Count       int          `json:"count"`
+	CurrentPage int          `json:"current_page"`
+	MaxPage     int          `json:"max_page"`
 }
 
 var wk_user_authTableInfo = &TableInfo{
@@ -174,11 +182,11 @@ func (w *WkUserAuth) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (w *WkUserAuth) BeforeSave() error {
+/*func (w *WkUserAuth) BeforeSave() error {
 	return nil
 }
 
-/*func (w *WkUserAuth) BeforeCreate(tx *gorm.DB) (err error) {
+func (w *WkUserAuth) BeforeCreate(tx *gorm.DB) (err error) {
     return
 }
 
@@ -240,9 +248,24 @@ func (w *WkUserAuth) List(fields string, order string, page int, nums int, query
 	return
 }
 
+// Get Page
+func (w *WkUserAuth) Pages(fields string, order string, page int, nums int, query interface{}, args ...interface{}) (pages wkuserauthPages, has bool) {
+	var ret []WkUserAuth
+	err := DB.Select(fields).Where(query, args...).Order(order).Limit(nums).Offset((page - 1) * nums).Find(&ret).Error
+	if err != nil || len(ret) == 0 {
+		return
+	}
+	has = true
+	pages.Rows = ret
+	pages.Count = int(w.Count(query, args...))
+	pages.CurrentPage = page
+	pages.MaxPage = int(math.Ceil(float64(pages.Count) / float64(nums)))
+	return
+}
+
 // Update
 func (w *WkUserAuth) Update(data map[string]interface{}, query interface{}, args ...interface{}) bool {
-	if DB.Model(WkUserAuth{}).Where(query, args...).Updates(data).RowsAffected == 0 {
+	if DB.Model(WkUserAuth{}).Omit("CreateTime", "UpdateTime").Where(query, args...).Updates(data).RowsAffected == 0 {
 		return false
 	}
 	return true
@@ -250,7 +273,7 @@ func (w *WkUserAuth) Update(data map[string]interface{}, query interface{}, args
 
 // Insert
 func (w *WkUserAuth) Insert(data WkUserAuth) uint32 {
-	err := DB.Create(&data).Error
+	err := DB.Omit("CreateTime", "UpdateTime").Create(&data).Error
 	if err != nil {
 		return 0
 	}

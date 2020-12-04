@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"math"
 	"time"
 
 	"github.com/guregu/null"
@@ -35,7 +36,7 @@ CREATE TABLE `wk_company_group` (
 
 JSON Sample
 -------------------------------------
-{    "name": "ZeQQkjJntuQcRElcVZFHCicps",    "add_user_id": 58,    "remark": "XgpfEAeJgGJPqvNrZghtzWlNh",    "status": 24,    "create_time": "2187-04-03T08:00:00.582100782+08:00",    "update_time": "2144-04-14T12:25:26.746035042+08:00",    "id": 24,    "company_id": 25}
+{    "remark": "flMAfCIUbuRTzuyarloUeZNpg",    "status": 99,    "create_time": "2102-11-03T22:33:04.51688278+08:00",    "update_time": "2252-03-06T23:22:39.339460609+08:00",    "id": 80,    "company_id": 36,    "name": "FTrYCTqAqGYmTsSRYGbQmkpGT",    "add_user_id": 25}
 
 
 Comments
@@ -49,21 +50,28 @@ Comments
 // WkCompanyGroup struct is a row record of the wk_company_group table in the we-work database
 type WkCompanyGroup struct {
 	//[ 0] id                                             uint                 null: false  primary: true   isArray: false  auto: true   col: uint            len: -1      default: []
-	ID uint32
+	ID uint32 `json:"id"`
 	//[ 1] company_id                                     int                  null: false  primary: false  isArray: false  auto: false  col: int             len: -1      default: []
-	CompanyID int32 // 公司id
+	CompanyID int32 `json:"company_id"` // 公司id
 	//[ 2] name                                           varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	Name string // 群组名称
+	Name string `json:"name"` // 群组名称
 	//[ 3] add_user_id                                    int                  null: false  primary: false  isArray: false  auto: false  col: int             len: -1      default: [0]
-	AddUserID int32 // 添加该群组的用户id
+	AddUserID int32 `json:"add_user_id"` // 添加该群组的用户id
 	//[ 4] remark                                         varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	Remark string // 群组备注信息
+	Remark string `json:"remark"` // 群组备注信息
 	//[ 5] status                                         tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [-1]
-	Status int32 // -1关闭 0正常 1锁定
+	Status int32 `json:"status"` // -1关闭 0正常 1锁定
 	//[ 6] create_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	CreateTime time.Time
+	CreateTime time.Time `json:"create_time"`
 	//[ 7] update_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	UpdateTime time.Time
+	UpdateTime time.Time `json:"update_time"`
+}
+
+type wkcompanygroupPages struct {
+	Rows        []WkCompanyGroup `json:"rows"`
+	Count       int              `json:"count"`
+	CurrentPage int              `json:"current_page"`
+	MaxPage     int              `json:"max_page"`
 }
 
 var wk_company_groupTableInfo = &TableInfo{
@@ -246,11 +254,11 @@ func (w *WkCompanyGroup) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (w *WkCompanyGroup) BeforeSave() error {
+/*func (w *WkCompanyGroup) BeforeSave() error {
 	return nil
 }
 
-/*func (w *WkCompanyGroup) BeforeCreate(tx *gorm.DB) (err error) {
+func (w *WkCompanyGroup) BeforeCreate(tx *gorm.DB) (err error) {
     return
 }
 
@@ -312,9 +320,24 @@ func (w *WkCompanyGroup) List(fields string, order string, page int, nums int, q
 	return
 }
 
+// Get Page
+func (w *WkCompanyGroup) Pages(fields string, order string, page int, nums int, query interface{}, args ...interface{}) (pages wkcompanygroupPages, has bool) {
+	var ret []WkCompanyGroup
+	err := DB.Select(fields).Where(query, args...).Order(order).Limit(nums).Offset((page - 1) * nums).Find(&ret).Error
+	if err != nil || len(ret) == 0 {
+		return
+	}
+	has = true
+	pages.Rows = ret
+	pages.Count = int(w.Count(query, args...))
+	pages.CurrentPage = page
+	pages.MaxPage = int(math.Ceil(float64(pages.Count) / float64(nums)))
+	return
+}
+
 // Update
 func (w *WkCompanyGroup) Update(data map[string]interface{}, query interface{}, args ...interface{}) bool {
-	if DB.Model(WkCompanyGroup{}).Where(query, args...).Updates(data).RowsAffected == 0 {
+	if DB.Model(WkCompanyGroup{}).Omit("CreateTime", "UpdateTime").Where(query, args...).Updates(data).RowsAffected == 0 {
 		return false
 	}
 	return true
@@ -322,7 +345,7 @@ func (w *WkCompanyGroup) Update(data map[string]interface{}, query interface{}, 
 
 // Insert
 func (w *WkCompanyGroup) Insert(data WkCompanyGroup) uint32 {
-	err := DB.Create(&data).Error
+	err := DB.Omit("CreateTime", "UpdateTime").Create(&data).Error
 	if err != nil {
 		return 0
 	}

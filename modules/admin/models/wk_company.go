@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"math"
 	"time"
 
 	"github.com/guregu/null"
@@ -28,16 +29,17 @@ CREATE TABLE `wk_company` (
   `address` varchar(255) NOT NULL DEFAULT '' COMMENT '公司地址',
   `address_pos` varchar(255) NOT NULL DEFAULT '' COMMENT '公司坐标',
   `license_pic` varchar(255) NOT NULL DEFAULT '' COMMENT '营业执照图片',
-  `status` tinyint(4) NOT NULL DEFAULT '-1' COMMENT '-1未激活 0正常 1锁定',
+  `verify_remark` varchar(255) NOT NULL DEFAULT '' COMMENT '审核备注：审核不通过需要备注',
+  `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '-1草稿 0未激活 1已激活 2激活失败',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `username` (`name`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='公司信息表'
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='公司信息表'
 
 JSON Sample
 -------------------------------------
-{    "id": 87,    "name": "whbXMYICVsbdibFssnEcGNcdA",    "contact_name": "VtvPMAozoCOeOHsgZjjQzfFuT",    "create_time": "2194-04-09T04:05:59.243701678+08:00",    "contact_mobile": "mNQXSUZzCRKeGfcnLwKMVCiMM",    "address": "yZnpJyjxoXYWMTuHhEpZOyxXC",    "address_pos": "xnnfzZOxHhQDBivzhCoBlGdtA",    "license_pic": "OcXUgVkxxAyQnqYbEmpazyffq",    "status": 27,    "update_time": "2186-12-14T16:09:23.065019266+08:00"}
+{    "create_time": "2190-02-12T11:22:08.85384017+08:00",    "contact_name": "TwSQvqKdDWQAOXALSRnEtstua",    "license_pic": "RuuQnUzfJAuQrGJMhsLmAdXPn",    "status": 88,    "address": "aOvSdiYtwYnIqdLdxNqPvTFHw",    "address_pos": "hFOBxOJyDLQYuKlutPhwANtSp",    "verify_remark": "cFzvNjOidwrFGcnhXGMalrAkV",    "update_time": "2094-06-12T07:41:08.301103935+08:00",    "id": 24,    "name": "FcOGWcmtJcBSOctrGuBHbrsuJ",    "contact_mobile": "ZcvIfsKXCDjDroCerLRXBwFMJ"}
 
 
 Comments
@@ -63,14 +65,22 @@ type WkCompany struct {
 	//[ 5] address_pos                                    varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
 	AddressPos string `json:"address_pos"` // 公司坐标
 	//[ 6] license_pic                                    varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
-	LicensePic   string `json:"license_pic"`   // 营业执照图片
+	LicensePic string `json:"license_pic"` // 营业执照图片
+	//[ 7] verify_remark                                  varchar(255)         null: false  primary: false  isArray: false  auto: false  col: varchar         len: 255     default: []
 	VerifyRemark string `json:"verify_remark"` // 审核备注：审核不通过需要备注
-	//[ 7] status                                         tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [-1]
-	Status int32 `json:"status"` // -1未激活 0正常 1锁定
-	//[ 8] create_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	CreateTime time.Time `json:"create_time,omitempty"`
-	//[ 9] update_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
-	UpdateTime time.Time `json:"update_time,omitempty"`
+	//[ 8] status                                         tinyint              null: false  primary: false  isArray: false  auto: false  col: tinyint         len: -1      default: [0]
+	Status int32 `json:"status"` // -1草稿 0未激活 1已激活 2激活失败
+	//[ 9] create_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
+	CreateTime time.Time `json:"create_time"`
+	//[10] update_time                                    timestamp            null: false  primary: false  isArray: false  auto: false  col: timestamp       len: -1      default: [CURRENT_TIMESTAMP]
+	UpdateTime time.Time `json:"update_time"`
+}
+
+type wkcompanyPages struct {
+	Rows        []WkCompany `json:"rows"`
+	Count       int         `json:"count"`
+	CurrentPage int         `json:"current_page"`
+	MaxPage     int         `json:"max_page"`
 }
 
 var wk_companyTableInfo = &TableInfo{
@@ -226,8 +236,29 @@ var wk_companyTableInfo = &TableInfo{
 
 		&ColumnInfo{
 			Index:              7,
+			Name:               "verify_remark",
+			Comment:            `审核备注：审核不通过需要备注`,
+			Notes:              ``,
+			Nullable:           false,
+			DatabaseTypeName:   "varchar",
+			DatabaseTypePretty: "varchar(255)",
+			IsPrimaryKey:       false,
+			IsAutoIncrement:    false,
+			IsArray:            false,
+			ColumnType:         "varchar",
+			ColumnLength:       255,
+			GoFieldName:        "VerifyRemark",
+			GoFieldType:        "string",
+			JSONFieldName:      "verify_remark",
+			ProtobufFieldName:  "verify_remark",
+			ProtobufType:       "string",
+			ProtobufPos:        8,
+		},
+
+		&ColumnInfo{
+			Index:              8,
 			Name:               "status",
-			Comment:            `-1未激活 0正常 1锁定`,
+			Comment:            `-1草稿 0未激活 1已激活 2激活失败`,
 			Notes:              ``,
 			Nullable:           false,
 			DatabaseTypeName:   "tinyint",
@@ -242,11 +273,11 @@ var wk_companyTableInfo = &TableInfo{
 			JSONFieldName:      "status",
 			ProtobufFieldName:  "status",
 			ProtobufType:       "int32",
-			ProtobufPos:        8,
+			ProtobufPos:        9,
 		},
 
 		&ColumnInfo{
-			Index:              8,
+			Index:              9,
 			Name:               "create_time",
 			Comment:            ``,
 			Notes:              ``,
@@ -263,11 +294,11 @@ var wk_companyTableInfo = &TableInfo{
 			JSONFieldName:      "create_time",
 			ProtobufFieldName:  "create_time",
 			ProtobufType:       "uint64",
-			ProtobufPos:        9,
+			ProtobufPos:        10,
 		},
 
 		&ColumnInfo{
-			Index:              9,
+			Index:              10,
 			Name:               "update_time",
 			Comment:            ``,
 			Notes:              ``,
@@ -284,7 +315,7 @@ var wk_companyTableInfo = &TableInfo{
 			JSONFieldName:      "update_time",
 			ProtobufFieldName:  "update_time",
 			ProtobufType:       "uint64",
-			ProtobufPos:        10,
+			ProtobufPos:        11,
 		},
 	},
 }
@@ -295,11 +326,11 @@ func (w *WkCompany) TableName() string {
 }
 
 // BeforeSave invoked before saving, return an error if field is not populated.
-func (w *WkCompany) BeforeSave() error {
+/*func (w *WkCompany) BeforeSave() error {
 	return nil
 }
 
-/*func (w *WkCompany) BeforeCreate(tx *gorm.DB) (err error) {
+func (w *WkCompany) BeforeCreate(tx *gorm.DB) (err error) {
     return
 }
 
@@ -361,9 +392,24 @@ func (w *WkCompany) List(fields string, order string, page int, nums int, query 
 	return
 }
 
+// Get Page
+func (w *WkCompany) Pages(fields string, order string, page int, nums int, query interface{}, args ...interface{}) (pages wkcompanyPages, has bool) {
+	var ret []WkCompany
+	err := DB.Select(fields).Where(query, args...).Order(order).Limit(nums).Offset((page - 1) * nums).Find(&ret).Error
+	if err != nil || len(ret) == 0 {
+		return
+	}
+	has = true
+	pages.Rows = ret
+	pages.Count = int(w.Count(query, args...))
+	pages.CurrentPage = page
+	pages.MaxPage = int(math.Ceil(float64(pages.Count) / float64(nums)))
+	return
+}
+
 // Update
 func (w *WkCompany) Update(data map[string]interface{}, query interface{}, args ...interface{}) bool {
-	if DB.Model(WkCompany{}).Where(query, args...).Updates(data).RowsAffected == 0 {
+	if DB.Model(WkCompany{}).Omit("CreateTime", "UpdateTime").Where(query, args...).Updates(data).RowsAffected == 0 {
 		return false
 	}
 	return true
@@ -371,7 +417,7 @@ func (w *WkCompany) Update(data map[string]interface{}, query interface{}, args 
 
 // Insert
 func (w *WkCompany) Insert(data WkCompany) uint32 {
-	err := DB.Create(&data).Error
+	err := DB.Omit("CreateTime", "UpdateTime").Create(&data).Error
 	if err != nil {
 		return 0
 	}

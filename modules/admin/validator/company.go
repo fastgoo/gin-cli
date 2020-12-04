@@ -11,18 +11,31 @@ import (
 )
 
 type CompanyRegisterParams struct {
+	CompanyId     int    `form:"company_id" json:"company_id"`
 	Name          string `form:"name" json:"name" binding:"required,CompanyNameNotExistValid"`
 	ContactName   string `form:"contact_name" json:"contact_name" binding:"required"`
 	ContactMobile string `form:"contact_mobile"  json:"contact_mobile"  binding:"required,TelValid"`
 	Address       string `form:"address"  json:"address"  binding:"required"`
 	AddressPos    string `form:"address_pos"  json:"address_pos"  binding:"required,AddressPosValid"`
 	LicensePic    string `form:"license_pic"  json:"license_pic"  binding:"required,LicensePicValid"`
+	IsDraft       int    `form:"is_draft"  json:"is_draft"`
 }
 
 type CompanyVerifyParams struct {
 	CompanyId    int    `form:"company_id" json:"company_id" binding:"required"`
 	VerifyRemark string `form:"remark" json:"remark" binding:"required"`
 	Status       int    `form:"status"  json:"status"  binding:"VerifyStatusValid"`
+}
+
+type CompanyListParams struct {
+	Page          int    `form:"page" json:"page"`
+	Size          int    `form:"size" json:"size"`
+	CompanyId     int    `form:"company_id" json:"company_id"`
+	Name          string `form:"company_name" json:"company_name"`
+	ContactName   string `form:"contact_name" json:"contact_name"`
+	ContactMobile string `form:"contact_mobile" json:"contact_mobile"`
+	Address       string `form:"address" json:"address"`
+	Status        int    `form:"status" json:"status"`
 }
 
 // 绑定模型获取验证错误的方法
@@ -112,7 +125,7 @@ func licensePicValid(fl validator.FieldLevel) bool {
 	return strings.Contains(fl.Field().String(), qiniu.GetUrl(""))
 }
 
-// 1待认证 2已认证 3认证失败
+// 0待认证 1已认证 2认证失败
 func verifyStatusValid(fl validator.FieldLevel) bool {
 	status := fl.Field().Int()
 	return status == 1 || status == 2 || status == 3
