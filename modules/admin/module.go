@@ -24,6 +24,7 @@ func router() {
 		admin.POST("/upload", api.Upload)
 
 		admin.POST("/company/save", api.CompanySave)
+		admin.POST("/company/change", api.CompanyChange)
 		admin.POST("/company/verify", api.CompanyVerify)
 		admin.GET("/company/list", api.CompanyList)
 		admin.GET("/company/detail/:company_id", api.CompanyInfo)
